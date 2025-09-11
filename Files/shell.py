@@ -33,11 +33,6 @@ def parse_cmd(cmd_input):
             
         command_list.append(d)
     return command_list
-    
-
-
-
-
 
 def print_cmd(cmd):
     """This function "cleans" off the command line, then prints
@@ -77,6 +72,39 @@ def ls(parts):
 
 
     return {"output":output,"error":None}
+
+def mkdir():
+    # code here
+
+def cd():
+
+def pwd():
+
+def mv():
+
+def cp():
+
+def rm():
+
+def cat():
+
+def less():
+
+def head():
+
+def tail():
+
+def grep():
+
+def wc():
+
+def history():
+
+def chmod():
+
+def sort():
+
+# def COMMAND OF OUR CHOICE HERE ():
 
 if __name__ == "__main__":
     cmd_list = parse_cmd("ls Assignments -lah | grep '.py' | wc -l > output")
