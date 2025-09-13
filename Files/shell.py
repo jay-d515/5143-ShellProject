@@ -73,35 +73,89 @@ def ls(parts):
 
     return {"output":output,"error":None}
 
+'''
+mkdir command creates a directory
+'''
 def mkdir():
     # code here
 
+'''
+cd will change the working directory
+'''
 def cd():
 
+'''
+pwd command will print the working directory
+- all I THINK we have to do here is just grab the name of the directory
+  and just display it
+'''
 def pwd():
 
+'''
+mv command will
+- move files/directories to a different location
+- rename file
+'''
 def mv():
 
+'''
+cp command makes a copy of the first argument into the second argument
+'''
 def cp():
 
+'''
+rm command lets the user delete a file/directory passing its name
+'''
 def rm():
 
+'''
+cat command lets the user view the contents of a file
+- how are we going to handle security here?
+  only allowed access if the permissions are correctly set
+'''
 def cat():
 
+'''
+less lets the user only see snippets of files
+- same security concern here
+'''
 def less():
 
+'''
+by default, head displays the first ten lins of a file
+'''
 def head():
 
+'''
+tail command prints the data at the end of a file
+'''
 def tail():
 
+'''
+grep command finds matching words within text files
+'''
 def grep():
 
+'''
+wc simply counts the total number of words in a file
+'''
 def wc():
 
+'''
+history prints the entire history of commands used
+- I think we can just have a cmd_history list that contains each
+  command used by simply appending the cmd to the list
+'''
 def history():
 
+'''
+chmod changes permissions of files or directories to users
+'''
 def chmod():
 
+'''
+sort command sorts the contents of a file(s) in ASCII order
+'''
 def sort():
 
 # def COMMAND OF OUR CHOICE HERE ():
