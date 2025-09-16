@@ -74,6 +74,12 @@ def ls(parts):
     return {"output":output,"error":None}
 
 '''
+exit command will exit the shell
+'''
+def exit_cmd():
+    # code here
+    pass
+'''
 mkdir command creates a directory
 '''
 def mkdir():
@@ -88,19 +94,15 @@ def cd():
     pass
 
 '''
-pwd command will print the working directory
-- prints the current working directory path
+pwd command:
+prints the current working directory
 '''
 def pwd(parts):
-    '''
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
-    '''
     try:
-        current_dir = os.getcwd()
-        return {"output": current_dir, "error": None}
+        current_directory = os.getcwd()
+        return {"output":current_directory, "error":None}
     except Exception as e:
-        return {"output": None, "error": f"pwd: {str(e)}"}
+        return {"output":None, "error": f"pwd:{str(e)}"}
 
 '''
 mv command will
@@ -195,10 +197,33 @@ def sort():
 
 # def COMMAND OF OUR CHOICE HERE ():
 
+def execute_command(command_dict):
+    """
+    Command dispatcher - routes commands to their respective functions
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output: dict: {"output":string,"error":string}
+    """
+    command_map = {
+        'pwd': pwd,
+        'ls': ls,
+        # Add more commands here as you implement them
+        # 'cd': cd,
+        # 'mkdir': mkdir,
+        # 'cat': cat,
+        # etc.
+    }
+    
+    cmd_name = command_dict.get('cmd', '').lower()
+    
+    if cmd_name in command_map:
+        return command_map[cmd_name](command_dict)
+    else:
+        return {"output": None, "error": f"Command '{cmd_name}' not found"}
+
 if __name__ == "__main__":
     cmd_list = parse_cmd("ls Assignments -lah | grep '.py' | wc -l > output")
     print(cmd_list)
-    sys.exit(0)
+    # sys.exit(0)
     cmd = ""  # empty cmd variable
 
     print_cmd(cmd)  # print to terminal
@@ -253,18 +278,31 @@ if __name__ == "__main__":
             print_cmd(cmd)  # print the command (again)
 
         elif char in "\r":  # return pressed
-
-            # This 'elif' simulates something "happening" after pressing return
-            cmd = "Executing command...."  #
-            print_cmd(cmd)
-            sleep(1)
-
-            ## YOUR CODE HERE
-            ## Parse the command
-            ## Figure out what your executing like finding pipes and redirects
+            # Save the current command before processing
+            user_input = cmd.strip()
+            
+            if user_input:  # Only process if there's actually a command
+                # Show execution message
+                cmd = "Executing command...."
+                print_cmd(cmd)
+                sleep(0.5)
+                
+                # Parse the command into structured format
+                command_list = parse_cmd(user_input)
+                
+                # For now, just execute the first command (no pipes yet)
+                if command_list:
+                    first_cmd = command_list[0]
+                    result = execute_command(first_cmd)
+                    
+                    # Display the result
+                    print()  # New line after command
+                    if result["output"]:
+                        print(result["output"])
+                    if result["error"]:
+                        print(f"Error: {result['error']}")
 
             cmd = ""  # reset command to nothing (since we just executed it)
-
             print_cmd(cmd)  # now print empty cmd prompt
         else:
             cmd += char  # add typed character to our "cmd"
