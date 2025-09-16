@@ -48,73 +48,31 @@ def ls(parts):
     input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
     output dict: {"output":string,"error":string}
     '''
-    import os
-    
-    input = parts.get("input", None)
-    flags = parts.get("flags", None) or ""  # Handle None flags
-    params = parts.get("params", None) or []  # Handle None params
+    input = parts.get("input",None)
+    # handles 
+    flags = parts.get("flags",None)
+    params = parts.get("params",None)
 
-    # Determine which directory to list
+    if input:
+        pass
+
     if len(params) > 0:
-        directory = params[0]  # Use specified directory
-    else:
-        directory = "."  # Use current directory
+        pass
+        return {"output":None,"error":"Directory doesn't exist"}
 
-    try:
-        # Get list of files in directory
-        files = os.listdir(directory)
-        
-        # Handle -a flag (show hidden files)
-        if 'a' not in flags:
-            # Filter out hidden files (starting with .)
-            files = [f for f in files if not f.startswith('.')]
-        
-        # Sort the files
-        files.sort()
-        
-        # Handle -l flag (long format) and -h flag (human readable)
-        if 'l' in flags:
-            # Long format with file details
-            output_lines = []
-            for file in files:
-                filepath = os.path.join(directory, file)
-                try:
-                    stat_info = os.stat(filepath)
-                    size = stat_info.st_size
-                    
-                    # Handle -h flag (human readable sizes)
-                    if 'h' in flags:
-                        if size >= 1024**3:
-                            size_str = f"{size/1024**3:.1f}G"
-                        elif size >= 1024**2:
-                            size_str = f"{size/1024**2:.1f}M" 
-                        elif size >= 1024:
-                            size_str = f"{size/1024:.1f}K"
-                        else:
-                            size_str = f"{size}B"
-                    else:
-                        size_str = str(size)
-                    
-                    # Determine if it's a directory
-                    file_type = "d" if os.path.isdir(filepath) else "-"
-                    
-                    output_lines.append(f"{file_type}rwxr-xr-x  {size_str:>8}  {file}")
-                except OSError:
-                    output_lines.append(f"?---------  {'?':>8}  {file}")
-            
-            output = "\n".join(output_lines)
-        else:
-            # Simple format - just list filenames
-            output = "  ".join(files)
-        
-        return {"output": output, "error": None}
-        
-    except FileNotFoundError:
-        return {"output": None, "error": f"ls: cannot access '{directory}': No such file or directory"}
-    except PermissionError:
-        return {"output": None, "error": f"ls: cannot open directory '{directory}': Permission denied"}
-    except Exception as e:
-        return {"output": None, "error": f"ls: {str(e)}"}
+    if 'a' in flags:
+        pass
+
+    if 'l' in flags:
+        pass
+
+    if 'h' in flags:
+        pass
+
+    output="something"
+
+
+    return {"output":output,"error":None}
 
 '''
 exit command will exit the shell
