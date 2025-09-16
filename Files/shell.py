@@ -89,12 +89,18 @@ def cd():
 
 '''
 pwd command will print the working directory
-- all I THINK we have to do here is just grab the name of the directory
-  and just display it
+- prints the current working directory path
 '''
-def pwd():
-    # code here
-    pass
+def pwd(parts):
+    '''
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
+    try:
+        current_dir = os.getcwd()
+        return {"output": current_dir, "error": None}
+    except Exception as e:
+        return {"output": None, "error": f"pwd: {str(e)}"}
 
 '''
 mv command will
