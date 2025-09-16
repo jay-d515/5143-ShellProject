@@ -358,17 +358,12 @@ if __name__ == "__main__":
                     first_cmd = command_list[0]
                     result = execute_command(first_cmd)
                     
-                    # Display the result  
+                    # Display the result
+                    print()  # New line after command
                     if result["output"]:
-                        # Clear the line and display output on a new line
-                        sys.stdout.write("\n")
-                        sys.stdout.write(result["output"])
-                        sys.stdout.write("\n")
+                        print(result["output"])
                     if result["error"]:
-                        sys.stdout.write("\n")
-                        sys.stdout.write(f"Error: {result['error']}")
-                        sys.stdout.write("\n")
-                    sys.stdout.flush()
+                        print(f"Error: {result['error']}")
 
             cmd = ""  # reset command to nothing (since we just executed it)
             print_cmd(cmd)  # now print empty cmd prompt
