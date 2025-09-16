@@ -154,35 +154,40 @@ def less():
     pass
 
 '''
-by default, head displays the first ten lins of a file
+head:
+displays the first ten lins of a file
 '''
 def head():
     # code here
     pass
 
 '''
-tail command prints the data at the end of a file
+tail:
+prints the data at the end of a file
 '''
 def tail():
     # code here
     pass
 
 '''
-grep command finds matching words within text files
+grep:
+finds matching words within text files
 '''
 def grep():
     # code here
     pass
 
 '''
-wc simply counts the total number of words in a file
+wc:
+counts the total number of words in a file
 '''
 def wc():
     # code here
     pass
 
 '''
-history prints the entire history of commands used
+history:
+prints the entire history of commands used
 - I think we can just have a cmd_history list that contains each
   command used by simply appending the cmd to the list
 '''
@@ -191,14 +196,16 @@ def history():
     pass
 
 '''
-chmod changes permissions of files or directories to users
+chmod:
+changes permissions of files or directories to users
 '''
 def chmod():
     # code here
     pass
 
 '''
-sort command sorts the contents of a file(s) in ASCII order
+sort:
+sorts the contents of a file(s) in ASCII order
 '''
 def sort():
     # code here
