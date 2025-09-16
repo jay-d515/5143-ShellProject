@@ -18,6 +18,10 @@ getch = Getch()  # create instance of our getch class
 
 prompt = "$"  # set default prompt
 
+'''
+parse_cmd:
+parses the command line input into a list of dictionaries
+'''
 def parse_cmd(cmd_input):
     command_list = []
     cmds = cmd_input.split("|")
@@ -354,12 +358,17 @@ if __name__ == "__main__":
                     first_cmd = command_list[0]
                     result = execute_command(first_cmd)
                     
-                    # Display the result
-                    print()  # New line after command
+                    # Display the result  
                     if result["output"]:
-                        print(result["output"])
+                        # Clear the line and display output on a new line
+                        sys.stdout.write("\n")
+                        sys.stdout.write(result["output"])
+                        sys.stdout.write("\n")
                     if result["error"]:
-                        print(f"Error: {result['error']}")
+                        sys.stdout.write("\n")
+                        sys.stdout.write(f"Error: {result['error']}")
+                        sys.stdout.write("\n")
+                    sys.stdout.flush()
 
             cmd = ""  # reset command to nothing (since we just executed it)
             print_cmd(cmd)  # now print empty cmd prompt
