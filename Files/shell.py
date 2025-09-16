@@ -52,64 +52,70 @@ def ls(parts):
     flags = parts.get("flags",None) or ""
     params = parts.get("params",None) or []
 
-    directory = params[0] if len(params) > 0 else "."
+    # determine which directory to list
+    if len(params) > 0:
+        # use a specified directory
+        directory = params[0]
+    else:
+        # use the current directory
+        directory = "."
 
     try:
+        # get a list of files in the current directory
         files = os.listdir(directory)
 
-        if 'a' not in flags:
+        # handles -a flag
+        if 'a' in flags:
+            # show all files, including hidden ones
+            files = os.listdir(directory)
+        else:
+            # hide files that start with a dot
+            files = os.listdir(directory)
             files = [f for f in files if not f.startswith('.')]
-            
-        files.sort()  # Sort files alphabetically
-        
+
+        # sorts the files alphabetically
+        files.sort()
+
+        # handles -l flag
         if 'l' in flags:
-            # Long format - show detailed file information
-            import time
+            # long format with file details
             output_lines = []
             for file in files:
                 filepath = os.path.join(directory, file)
                 try:
                     stat_info = os.stat(filepath)
                     size = stat_info.st_size
-                    
-                    # Check if -h flag is also present
+
                     if 'h' in flags:
-                        # Human readable size format
                         if size >= 1024**3:
                             size_str = f"{size/1024**3:.1f}G"
                         elif size >= 1024**2:
-                            size_str = f"{size/1024**2:.1f}M" 
+                            size_str = f"{size/1024**2:.1f}M"
                         elif size >= 1024:
                             size_str = f"{size/1024:.1f}K"
                         else:
                             size_str = f"{size}B"
                     else:
-                        # Regular size in bytes
                         size_str = str(size)
-                    
-                    # Determine file type (directory vs file)
-                    file_type = "d" if os.path.isdir(filepath) else "-"
-                    
-                    # Format the long listing line
-                    line = f"{file_type}rwxr-xr-x  {size_str:>8}  {file}"
-                    output_lines.append(line)
-                except OSError:
-                    # Handle files we can't stat
-                    output_lines.append(f"?---------  {'?':>8}  {file}")
-            
-            output = "\n".join(output_lines)
-        else:
-            # Simple format - just list filenames
-            if 'h' in flags:
-                # -h flag without -l doesn't change simple listing
-                pass
-            
-            output = "  ".join(files)
-            
-        return {"output":output,"error":None}
-    except FileNotFoundError:
-        return {"output":None,"error":"Directory doesn't exist"}
 
+                    # deternmine if it is a directory or file
+                    file_type = "d" if os.path.isdir(filepath) else "-"
+                    output_lines.append(f"{file_type}rwxr-xr-x {size_str:>8} {file}")
+                except OSError:
+                    output_lines.append(f"?--------- {'?':>8}  {file}")
+            ouput = "\n".join(output_lines)
+        else:
+            # short format with just file names
+            ouput = "  ".join(files)
+
+        return {"output":ouput, "error":None}
+
+    except FileNotFoundError:
+        return {"output": None, "error": f"ls: cannot access '{directory}': No such file or directory"}
+    except PermissionError:
+        return {"output": None, "error": f"ls: cannot open directory '{directory}': Permission denied"}
+    except Exception as e:
+        return {"output": None, "error": f"ls: {str(e)}"}
 '''
 exit command will exit the shell
 '''
