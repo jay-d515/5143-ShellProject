@@ -59,13 +59,53 @@ def ls(parts):
 
         if 'a' not in flags:
             files = [f for f in files if not f.startswith('.')]
+            
+        files.sort()  # Sort files alphabetically
+        
         if 'l' in flags:
-            pass
-
-        if 'h' in flags:
-            pass
-
-        output = "  ".join(sorted(files))
+            # Long format - show detailed file information
+            import time
+            output_lines = []
+            for file in files:
+                filepath = os.path.join(directory, file)
+                try:
+                    stat_info = os.stat(filepath)
+                    size = stat_info.st_size
+                    
+                    # Check if -h flag is also present
+                    if 'h' in flags:
+                        # Human readable size format
+                        if size >= 1024**3:
+                            size_str = f"{size/1024**3:.1f}G"
+                        elif size >= 1024**2:
+                            size_str = f"{size/1024**2:.1f}M" 
+                        elif size >= 1024:
+                            size_str = f"{size/1024:.1f}K"
+                        else:
+                            size_str = f"{size}B"
+                    else:
+                        # Regular size in bytes
+                        size_str = str(size)
+                    
+                    # Determine file type (directory vs file)
+                    file_type = "d" if os.path.isdir(filepath) else "-"
+                    
+                    # Format the long listing line
+                    line = f"{file_type}rwxr-xr-x  {size_str:>8}  {file}"
+                    output_lines.append(line)
+                except OSError:
+                    # Handle files we can't stat
+                    output_lines.append(f"?---------  {'?':>8}  {file}")
+            
+            output = "\n".join(output_lines)
+        else:
+            # Simple format - just list filenames
+            if 'h' in flags:
+                # -h flag without -l doesn't change simple listing
+                pass
+            
+            output = "  ".join(files)
+            
         return {"output":output,"error":None}
     except FileNotFoundError:
         return {"output":None,"error":"Directory doesn't exist"}
