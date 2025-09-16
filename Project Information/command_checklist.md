@@ -1,6 +1,6 @@
 ## Shell Assignment Command Checklist
 
-## Name: **\*\*\*\***\*\***\*\*\*\***\_\_\_**\*\*\*\***\*\***\*\*\*\***
+## Member Names: Jadyn Dangerfield, Andrew Huff, Laxminarasimha Soma
 
 |    #    | Item                                                   |  Value  | Earned |
 | :-----: | ------------------------------------------------------ | :-----: | :----: |
