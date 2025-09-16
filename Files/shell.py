@@ -76,28 +76,34 @@ def ls(parts):
 '''
 exit command will exit the shell
 '''
-def exit_cmd():
+def exit():
     # code here
     pass
 '''
-mkdir command creates a directory
+mkdir:
+creates a new directory
 '''
 def mkdir():
     # code here
     pass
 
 '''
-cd will change the working directory
+cd:
+changes the current working directory
 '''
 def cd():
     # code here
     pass
 
 '''
-pwd command:
-prints the current working directory
+pwd:
+prints the current working directory to the terminal
 '''
 def pwd(parts):
+    '''
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
     try:
         current_directory = os.getcwd()
         return {"output":current_directory, "error":None}
@@ -105,30 +111,32 @@ def pwd(parts):
         return {"output":None, "error": f"pwd:{str(e)}"}
 
 '''
-mv command will
-- move files/directories to a different location
-- rename file
+mv:
+moves files/directories to a different location and renames files
 '''
 def mv():
     # code here
     pass
 
 '''
-cp command makes a copy of the first argument into the second argument
+cp:
+makes a copy of the first argument into the second argument
 '''
 def cp():
     # code here
     pass
 
 '''
-rm command lets the user delete a file/directory passing its name
+rm:
+allows the user to delete a file/directory by passing its name
 '''
 def rm():
     # code here
     pass
 
 '''
-cat command lets the user view the contents of a file
+cat:
+allows the user to view the contents of a file
 - how are we going to handle security here?
   only allowed access if the permissions are correctly set
 '''
@@ -137,7 +145,8 @@ def cat():
     pass
 
 '''
-less lets the user only see snippets of files
+less:
+allows the user to only see snippets of files
 - same security concern here
 '''
 def less():
