@@ -52,26 +52,23 @@ def ls(parts):
     flags = parts.get("flags",None) or ""
     params = parts.get("params",None) or []
 
-    if input:
-        pass
+    directory = params[0] if len(params) > 0 else "."
 
-    if len(params) > 0:
-        pass
+    try:
+        files = os.listdir(directory)
+
+        if 'a' not in flags:
+            files = [f for f in files if not f.startswith('.')]
+        if 'l' in flags:
+            pass
+
+        if 'h' in flags:
+            pass
+
+        output = "  ".join(sorted(files))
+        return {"output":output,"error":None}
+    except FileNotFoundError:
         return {"output":None,"error":"Directory doesn't exist"}
-
-    if 'a' in flags:
-        pass
-
-    if 'l' in flags:
-        pass
-
-    if 'h' in flags:
-        pass
-
-    output="something"
-
-
-    return {"output":output,"error":None}
 
 '''
 exit command will exit the shell
