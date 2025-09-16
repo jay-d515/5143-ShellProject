@@ -49,10 +49,24 @@ def ls(parts):
     output dict: {"output":string,"error":string}
     '''
     input = parts.get("input",None)
-    # handles 
+    # handles the case where the user types ls without any arguments
     flags = parts.get("flags",None)
+    # handles the case where the user types ls -a, ls -l, or ls -h
     params = parts.get("params",None)
 
+    # determine which directory to list
+    if len(params) > 0:
+        # if a directory is specified, use that
+        directory = params[0]
+    else:
+        # otherwise, use the current directory
+        directory = "."
+
+    try:
+        # gets a list of files in the directory
+        files = os.listdir(directory)
+
+    if 
     if input:
         pass
 
