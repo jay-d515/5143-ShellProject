@@ -78,11 +78,14 @@ mkdir command creates a directory
 '''
 def mkdir():
     # code here
+    pass
 
 '''
 cd will change the working directory
 '''
 def cd():
+    # code here
+    pass
 
 '''
 pwd command will print the working directory
@@ -90,6 +93,8 @@ pwd command will print the working directory
   and just display it
 '''
 def pwd():
+    # code here
+    pass
 
 '''
 mv command will
@@ -97,16 +102,22 @@ mv command will
 - rename file
 '''
 def mv():
+    # code here
+    pass
 
 '''
 cp command makes a copy of the first argument into the second argument
 '''
 def cp():
+    # code here
+    pass
 
 '''
 rm command lets the user delete a file/directory passing its name
 '''
 def rm():
+    # code here
+    pass
 
 '''
 cat command lets the user view the contents of a file
@@ -114,32 +125,44 @@ cat command lets the user view the contents of a file
   only allowed access if the permissions are correctly set
 '''
 def cat():
+    # code here
+    pass
 
 '''
 less lets the user only see snippets of files
 - same security concern here
 '''
 def less():
+    # code here
+    pass
 
 '''
 by default, head displays the first ten lins of a file
 '''
 def head():
+    # code here
+    pass
 
 '''
 tail command prints the data at the end of a file
 '''
 def tail():
+    # code here
+    pass
 
 '''
 grep command finds matching words within text files
 '''
 def grep():
+    # code here
+    pass
 
 '''
 wc simply counts the total number of words in a file
 '''
 def wc():
+    # code here
+    pass
 
 '''
 history prints the entire history of commands used
@@ -147,16 +170,22 @@ history prints the entire history of commands used
   command used by simply appending the cmd to the list
 '''
 def history():
+    # code here
+    pass
 
 '''
 chmod changes permissions of files or directories to users
 '''
 def chmod():
+    # code here
+    pass
 
 '''
 sort command sorts the contents of a file(s) in ASCII order
 '''
 def sort():
+    # code here
+    pass
 
 # def COMMAND OF OUR CHOICE HERE ():
 
