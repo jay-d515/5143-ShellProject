@@ -9,10 +9,10 @@
 | **_1_** | **_Commands_**                                         ||        |
 |    1    | _ls -lah_                                              |Jadyn               |✔      |
 |    2    | _mkdir bananas_                                        |Andrew        |
-|    3    | _cd bananas_                                           ||        |
-|    4    | _cd .._                                                ||        |
-|    5    | _cd ~_                                                 ||        |
-|    6    | _pwd_                                                  |Jadyn               |✔      |
+|    3    | _cd bananas_                                           |Jadyn|        |
+|    4    | _cd .._                                                |Jadyn|        |
+|    5    | _cd ~_                                                 |Jadyn|        |
+|    6    | _pwd_                                                  |Jadyn|✔      |
 |    7    | _mv somefile.txt bananas_                              ||        |
 |    8    | _cp bananas/somefile.txt somefile/otherfile.txt_       ||        |
 |    9    | _rm -rf bananas_                                       ||        |
