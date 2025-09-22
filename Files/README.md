@@ -8,7 +8,7 @@
 | :-----: | ------------------------------------------------------ | :----------------: | :---: |
 | **_1_** | **_Commands_**                                         ||        |
 |    1    | _ls -lah_                                              |Jadyn               |✔      |
-|    2    | _mkdir bananas_                                        ||        |
+|    2    | _mkdir bananas_                                        |Andrew        |
 |    3    | _cd bananas_                                           ||        |
 |    4    | _cd .._                                                ||        |
 |    5    | _cd ~_                                                 ||        |
@@ -22,7 +22,7 @@
 |   13    | _tail somefile -n 10_                                  ||        |
 |   14    | _grep -lic bacon bacon.txt , ham.txt_                  ||        |
 |   15    | _wc -w bacon.txt_                                      ||        |
-|   16    | _history_                                              ||        |
+|   16    | _history_                                              |Andrew|        |
 |   17    | _!x_                                                   ||        |
 |   18    | _chmod 777 somefile.txt_                               ||        |
 |   19    | _sort bacon.txt_                                       ||        |
