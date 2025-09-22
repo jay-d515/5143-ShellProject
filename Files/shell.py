@@ -128,7 +128,9 @@ def exit():
     pass
 '''
 mkdir:
-creates a new directory
+creates a new directory 
+
+DOES NOT WORK YET - command not found error
 '''
 def mkdir(path):
     try:
@@ -136,7 +138,7 @@ def mkdir(path):
     except FileNotFoundError:
         return {"output": None, "error": f"mkdir: cannot create directory; File exitsts"}
     except PermissionError:
-        return {"output": None, "error": f"mkdir: cannot open directory '{directory}': Permission denied"}
+        return {"output": None, "error": f"mkdir: cannot open directory : Permission denied"}
     except Exception as e:
         return {"output": None, "error": f"mkdir: cannot create directory {str(e)}"}
 
@@ -243,10 +245,40 @@ history:
 prints the entire history of commands used
 - I think we can just have a cmd_history list that contains each
   command used by simply appending the cmd to the list
+
+  DOES NOT WORK YET
 '''
-def history():
-    # code here
-    pass
+def history(parts=None):
+    cmd_history = []
+    history_index = -1
+
+    user_input = cmd.strip()
+
+    if user_input:  # Only process if there's actually a command
+    # Save command to history
+        cmd_history.append(user_input)
+        history_index = len(cmd_history)  # Reset index to "after last command"
+
+    # Show execution message
+    cmd = "Executing command...."
+    print_cmd(cmd)
+    sleep(0.5)
+
+    # Parse and execute
+    command_list = parse_cmd(user_input)
+    if command_list:
+        first_cmd = command_list[0]
+        result = execute_command(first_cmd)
+        
+        print()  # New line after command
+        if result["output"]:
+            print(result["output"])
+        if result["error"]:
+            print(f"Error: {result['error']}")
+
+
+    lines = [f"{i+1} {c}" for i, c in enumerate(cmd_history)]
+    return lines
 
 '''
 chmod:
@@ -275,6 +307,8 @@ def execute_command(command_dict):
     command_map = {
         'pwd': pwd,
         'ls': ls,
+        'history': history,
+        'mdkdir': mkdir,
         # Add more commands here as you implement them
         # 'cd': cd,
         # 'mkdir': mkdir,
