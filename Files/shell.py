@@ -130,9 +130,15 @@ def exit():
 mkdir:
 creates a new directory
 '''
-def mkdir():
-    # code here
-    pass
+def mkdir(path):
+    try:
+        os.mkdir(path)
+    except FileNotFoundError:
+        return {"output": None, "error": f"mkdir: cannot create directory; File exitsts"}
+    except PermissionError:
+        return {"output": None, "error": f"mkdir: cannot open directory '{directory}': Permission denied"}
+    except Exception as e:
+        return {"output": None, "error": f"mkdir: cannot create directory {str(e)}"}
 
 '''
 cd:
