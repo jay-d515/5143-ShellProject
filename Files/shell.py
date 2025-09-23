@@ -146,9 +146,41 @@ def mkdir(path):
 cd:
 changes the current working directory
 '''
-def cd():
-    # code here
-    pass
+def cd(parts):
+    '''
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
+
+    try:
+        params = parts.get("params",None) or []
+
+        # if there are no params, default to the home directory
+        if not params:
+            target_directory = os.path.expanduser("~")
+
+        else:
+            arg = params[0]
+
+            if arg == "~":
+                target_directory = os.path.expanduser("~")
+            elif arg == "..":
+                target_directory = os.path.dirname(os.getcwd())
+            else:
+                target_directory = os.path.expanduser(arg)
+
+        os.chdir(target_directory)
+        return {"output": None, "error": None}
+
+    except FileNotFoundError:
+        return {"output": None, "error": f"cd: no such file or directory: {params[0]}"}
+    except NotADirectoryError:
+        return {"output": None, "error": f"cd: not a directory: {params[0]}"}
+    except PermissionError:
+        return {"output": None, "error": f"cd: permission denied: {params[0]}"}
+    except Exception as e:
+        return {"output": None, "error": f"cd: {str(e)}"}
+    
 
 '''
 pwd:
@@ -308,9 +340,9 @@ def execute_command(command_dict):
         'pwd': pwd,
         'ls': ls,
         'history': history,
-        'mdkdir': mkdir,
+        'mkdir': mkdir,
         # Add more commands here as you implement them
-        # 'cd': cd,
+        'cd': cd,
         # 'mkdir': mkdir,
         # 'cat': cat,
         # etc.
