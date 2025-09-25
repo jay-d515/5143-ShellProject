@@ -7,6 +7,7 @@ This file is about capturing the user input so that you can mimic shell behavior
 """
 import os
 import sys
+import getpass # used for whoami function
 from time import sleep
 from rich import print
 from getch import Getch
@@ -327,8 +328,12 @@ sorts the contents of a file(s) in ASCII order
 def sort():
     # code here
     pass
-
-# def COMMAND OF OUR CHOICE HERE ():
+'''
+whoami: 
+displays the username of the logged in user
+'''
+def whoami():
+    return "Logged in as: " + (getpass.getuser())
 
 def execute_command(command_dict):
     """
