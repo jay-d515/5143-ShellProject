@@ -122,26 +122,34 @@ def ls(parts):
     except Exception as e:
         return {"output": None, "error": f"ls: {str(e)}"}
 '''
-exit command will exit the shell
+exit:
+exit the shell
 '''
 def exit():
-    # code here
-    pass
+    os.exit
+
 '''
 mkdir:
 creates a new directory 
-
-DOES NOT WORK YET - command not found error
 '''
-def mkdir(path):
+def mkdir(parts):
+    params = parts.get("params")    
+    if not params:
+        return {"output": None, "error": "mkdir: missing operand"}
+
+    # returns the inputted directory name
+    path = params[0]  
+
     try:
         os.mkdir(path)
-    except FileNotFoundError:
-        return {"output": None, "error": f"mkdir: cannot create directory; File exitsts"}
+        return {"output": None, "error": None}
+    except FileExistsError:
+        return {"output": None, "error": f"mkdir: cannot create directory '{path}': File exists"}
     except PermissionError:
-        return {"output": None, "error": f"mkdir: cannot open directory : Permission denied"}
+        return {"output": None, "error": f"mkdir: cannot create directory '{path}': Permission denied"}
     except Exception as e:
-        return {"output": None, "error": f"mkdir: cannot create directory {str(e)}"}
+        return {"output": None, "error": f"mkdir: {str(e)}"}
+
 
 '''
 cd:
@@ -210,7 +218,7 @@ def mv():
 cp:
 makes a copy of the first argument into the second argument
 '''
-def cp():
+def cp(parts):
     # code here
     pass
 
@@ -332,8 +340,15 @@ def sort():
 whoami: 
 displays the username of the logged in user
 '''
-def whoami():
-    return "Logged in as: " + (getpass.getuser())
+def whoami(parts):
+    try:
+        user = getpass.getuser()
+        return {"output": user, "error": None}
+    except Exception as e:
+        return {"output": None, "error": f"whoami: {str(e)}"}
+
+
+
 
 def execute_command(command_dict):
     """
@@ -344,8 +359,10 @@ def execute_command(command_dict):
     command_map = {
         'pwd': pwd,
         'ls': ls,
-        'history': history,
+        #'history': history,
         'mkdir': mkdir,
+        'whoami': whoami,
+        'exit': exit,
         # Add more commands here as you implement them
         'cd': cd,
         # 'mkdir': mkdir,
@@ -373,7 +390,7 @@ if __name__ == "__main__":
         char = getch()  # read a character (but don't print)
 
         if char == "\x03" or cmd == "exit":  # ctrl-c
-            raise SystemExit("Bye.")
+            raise SystemExit("\nBye.")
 
         elif char == "\x7f":  # back space pressed
             cmd = cmd[:-1]
