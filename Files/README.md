@@ -9,24 +9,24 @@
 | **_1_** | **_Commands_**                                         ||        |
 |    1    | _ls -lah_                                              |Jadyn               |✔      |
 |    2    | _mkdir bananas_                                        |Andrew        |
-|    3    | _cd bananas_                                           |Jadyn|        |
-|    4    | _cd .._                                                |Jadyn|        |
-|    5    | _cd ~_                                                 |Jadyn|        |
+|    3    | _cd bananas_                                           |Jadyn|✔        |
+|    4    | _cd .._                                                |Jadyn|✔        |
+|    5    | _cd ~_                                                 |Jadyn|✔        |
 |    6    | _pwd_                                                  |Jadyn|✔      |
 |    7    | _mv somefile.txt bananas_                              |Soma| ✔       |
 |    8    | _cp bananas/somefile.txt somefile/otherfile.txt_       ||        |
 |    9    | _rm -rf bananas_                                       ||        |
 |   10    | _cat file(s)_                                          ||        |
 |   11    | _less somefile_                                        ||        |
-|   12    | _head somefile -n 10_                                  ||        |
-|   13    | _tail somefile -n 10_                                  ||        |
+|   12    | _head somefile -n 10_                                  |Jadyn|        |
+|   13    | _tail somefile -n 10_                                  |Jadyn|        |
 |   14    | _grep -lic bacon bacon.txt , ham.txt_                  ||        |
 |   15    | _wc -w bacon.txt_                                      |Soma| ✔       |
 |   16    | _history_                                              |Andrew|        |
 |   17    | _!x_                                                   ||        |
 |   18    | _chmod 777 somefile.txt_                               ||        |
 |   19    | _sort bacon.txt_                                       |Soma| ✔       |
-|   20    | _Command of your choice_                               ||        |
+|   20    | _Command of your choice_                               |Anderw|✔        |
 | **_2_** | **_Piping_**                                           ||        |
 |         | Similar to (but open for me to choose command):        ||        |
 |         | _grep bacon bacon.txt \| wc -l_                        ||        |
