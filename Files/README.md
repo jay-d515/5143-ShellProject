@@ -21,7 +21,7 @@
 |   12    | _head somefile -n 10_                                  ||        |
 |   13    | _tail somefile -n 10_                                  ||        |
 |   14    | _grep -lic bacon bacon.txt , ham.txt_                  ||        |
-|   15    | _wc -w bacon.txt_                                      ||        |
+|   15    | _wc -w bacon.txt_                                      |Soma|        |
 |   16    | _history_                                              |Andrew|        |
 |   17    | _!x_                                                   ||        |
 |   18    | _chmod 777 somefile.txt_                               ||        |
