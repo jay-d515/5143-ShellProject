@@ -18,7 +18,7 @@
 |    9    | _rm -rf bananas_                                       ||        |
 |   10    | _cat file(s)_                                          ||        |
 |   11    | _less somefile_                                        ||        |
-|   12    | _head somefile -n 10_                                  |Jadyn|        |
+|   12    | _head somefile -n 10_                                  |Jadyn|✔        |
 |   13    | _tail somefile -n 10_                                  |Jadyn|        |
 |   14    | _grep -lic bacon bacon.txt , ham.txt_                  ||        |
 |   15    | _wc -w bacon.txt_                                      |Soma| ✔       |
