@@ -268,12 +268,37 @@ def less():
 
 '''
 head:
-displays the first ten lins of a file
+displays the first ten lines of a file
 '''
-def head():
-    # code here
-    pass
+def head(parts):
+    params = parts.get("params") or []
+    flags = parts.get("flags") or ""
 
+    if not params:
+        return {"output": None, "error": "Head: missing file operand"}
+    
+    filename = params[0]
+    # default number of lines to show
+    n = 10
+
+    if "n" in flags:
+        if len(params) > 1:
+            try:
+                n = int(params[1])
+            except ValueError:
+                return {"output": None, "error": "head: invalid number of lines"}
+        else:
+            return {"output": None, "error": "head: option requires an argument -- 'n'"}
+        
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            return {"output": "".join(lines[:n]), "error": None}
+    except FileNotFoundError:
+        return {"output": None, "error": f"head: {filename}: No such file or directory"}
+    except PermissionError:
+        return {"output": None, "error": f"head: {filename}: Permission denied"}
+    
 '''
 tail:
 prints the data at the end of a file
@@ -429,11 +454,11 @@ def execute_command(command_dict):
         'mkdir': mkdir,
         'whoami': whoami,
         'exit': exit,
-        # Add more commands here as you implement them
         'cd': cd,
         'wc':wc,
         'sort': sort,
-        'mv' :mv 
+        'mv' :mv,
+        'head': head, 
         # 'mkdir': mkdir,
         # 'cat': cat,
         # etc.ex
