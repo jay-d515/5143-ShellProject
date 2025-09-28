@@ -210,9 +210,26 @@ def pwd(parts):
 mv:
 moves files/directories to a different location and renames files
 '''
-def mv():
-    # code here
-    pass
+def mv(parts):
+
+    params =parts.get("params") or []
+    if len(params)<2:
+        return {"output":None, "error":"mv: missing file operation"}
+
+    source, dest = params[0], params[1]
+    try:
+        os.rename(source, dest)
+        return {"output":None, "error":None}
+    except FileNotFoundError:
+        return {"output":None, "error":f"mv:{source}: There is no such file exixts"}
+    except PermissionError:
+        return{"output":None, "error":f"mv:permission denied"}        
+
+
+    except Exception as e:
+
+        return{"output":None, "error":f"mv:{str(e)}"}    
+    
 
 '''
 cp:
@@ -277,9 +294,27 @@ def grep():
 wc:
 counts the total number of words in a file
 '''
-def wc():
+def wc(parts):
     # code here
-    pass
+    params = parts.get("params") or []
+
+    if not params:
+        return{"output": None, "error": "wc:missing the command"}
+
+    filename = params[0]
+
+    try: 
+        with open(filename, "r", encoding="utf -8")as f:
+            text =f.read()
+            word_count =len(text.split())
+            return{"output": f"{word_count} of {filename} is :", "error": None}
+    
+    except FileNotFoundError:
+        return{"output":None, "error":f"wc:{filename}: no such file or file does not exists"}
+    
+    except PermissionError:
+        return{"output":None, "error": f"wc:{filename}:Permission denied"}                
+
 
 '''
 history:
@@ -333,8 +368,39 @@ def chmod():
 sort:
 sorts the contents of a file(s) in ASCII order
 '''
-def sort():
-    # code here
+def sort(parts):
+
+
+    params = parts.get("params") or []
+
+    if not params:
+        return{"output":None, "error": "sort:missing file operand"}
+
+    filename =params[0]
+
+    try:
+        with open(filename, "r", encoding ="utf-8") as f:
+
+            lines = f.readlines()
+
+            sorted_lines = sorted(line.strip() for line in lines)
+
+
+            result ="\n".join(sorted_lines)
+
+            return {"output": result, "error":None}
+    except FileNotFoundError:
+        return{"output":None, "error":f"sort: {filename}: no such file exists"}
+
+    except PermissionError:
+        return{"output":None, "error":f"sort:{filename}: permisiion denied"}
+
+
+
+
+
+
+
     pass
 '''
 whoami: 
@@ -365,9 +431,12 @@ def execute_command(command_dict):
         'exit': exit,
         # Add more commands here as you implement them
         'cd': cd,
+        'wc':wc,
+        'sort': sort,
+        'mv' :mv 
         # 'mkdir': mkdir,
         # 'cat': cat,
-        # etc.
+        # etc.ex
     }
     
     cmd_name = command_dict.get('cmd', '').lower()
