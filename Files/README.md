@@ -14,8 +14,8 @@
 |    5    | _cd ~_                                                 |Jadyn|✔        |
 |    6    | _pwd_                                                  |Jadyn|✔      |
 |    7    | _mv somefile.txt bananas_                              |Soma| ✔       |
-|    8    | _cp bananas/somefile.txt somefile/otherfile.txt_       ||        |
-|    9    | _rm -rf bananas_                                       ||        |
+|    8    | _cp bananas/somefile.txt somefile/otherfile.txt_       |Andrew|✔      |
+|    9    | _rm -rf bananas_                                       |Andrew| ✔      |
 |   10    | _cat file(s)_                                          ||        |
 |   11    | _less somefile_                                        ||        |
 |   12    | _head somefile -n 10_                                  |Jadyn|✔        |
