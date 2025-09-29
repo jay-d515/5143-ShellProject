@@ -290,9 +290,6 @@ def rm(parts):
     except Exception as e:
         return{"output":None, "error":f"rm:{str(e)}"} 
 
-    
-
-
 '''
 cat:
 allows the user to view the contents of a file
@@ -505,13 +502,6 @@ def sort(parts):
     except PermissionError:
         return{"output":None, "error":f"sort:{filename}: permisiion denied"}
 
-
-
-
-
-
-
-    pass
 '''
 whoami: 
 displays the username of the logged in user
@@ -523,9 +513,6 @@ def whoami(parts):
     except Exception as e:
         return {"output": None, "error": f"whoami: {str(e)}"}
 
-
-
-
 def execute_command(command_dict):
     """
     Command dispatcher - routes commands to their respective functions
@@ -536,7 +523,7 @@ def execute_command(command_dict):
         # Add more commands here as you implement them
         'pwd': pwd,
         'ls': ls,
-        #'history': history,
+        'history': history,
         'mkdir': mkdir,
         'whoami': whoami,
         'exit': exit,
@@ -544,8 +531,10 @@ def execute_command(command_dict):
         'wc':wc,
         'sort': sort,
         'mv' :mv 
-        # 'mkdir': mkdir,
-        # 'cat': cat,
+        'head': head, 
+        'tail': tail,
+        'cat': cat,
+        'less': less
         # etc.ex
     }
     
@@ -642,4 +631,5 @@ if __name__ == "__main__":
             print_cmd(cmd)  # now print empty cmd prompt
         else:
             cmd += char  # add typed character to our "cmd"
+
             print_cmd(cmd)  # print the cmd out
