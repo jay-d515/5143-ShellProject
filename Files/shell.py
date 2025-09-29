@@ -255,27 +255,26 @@ def cp(parts):
 '''
 rm:
 allows the user to delete a file/directory by passing its name
-
-- DOES NOT WORK YET 
 '''
 def rm(parts):
     params = parts.get("params",None) or []
     flags = parts.get("flags",None) or ""
 
     if not params:
-        return {"output": None, "error": "mkdir: missing operand"}
+        return {"output": None, "error": "rm: missing operand"}
 
     try:
-        for path in parts:
+        for path in params:
             # remove a single file, stand-alone or within a directory
             if os.path.isfile(path):
                 os.remove(path)
-            
-            # recursive rm, with -r flag set
+
+            # recursive rm, with -rf flag set
+            # will NOT ask for user confirmation to delete the directory
             elif os.path.isdir(path): # if the parameter is a directory, recursively delete
-                if "r" in flags:
+                if 'rf' in flags:
                     for files in os.listdir(path):
-                        shutil.rmtree(path) # deletes entire "tree" of files
+                        shutil.rmtree(path) # removes entire "tree" of files
 
             # if the file/directory doesn't exits, print error message
             else: 
@@ -433,43 +432,34 @@ def wc(parts):
 
 '''
 history:
-prints the entire history of commands used
-- I think we can just have a cmd_history list that contains each
-  command used by simply appending the cmd to the list
-
-  DOES NOT WORK YET
+prints the entire history of commands used as an enumerated list, beginning from 1 to i
 '''
 def history(parts=None):
-    cmd_history = []
-    history_index = -1
+    lines = [f"{i+1} {cmd}" for i, cmd in enumerate(cmd_history)]
+    return {"output": "\n".join(lines), "error": None}
 
-    user_input = cmd.strip()
+'''
+exclamation (!):
+runs the command specified by the history index
+'''
+def exclamation(user_input):
+    # if an exclamation is not attached
+    if not user_input.startswith("!"):
+        return None
 
-    if user_input:  # Only process if there's actually a command
-    # Save command to history
-        cmd_history.append(user_input)
-        history_index = len(cmd_history)  # Reset index to "after last command"
+    num_str = user_input[1:]
 
-    # Show execution message
-    cmd = "Executing command...."
-    print_cmd(cmd)
-    sleep(0.5)
+    # if num is NOT a digit, error message
+    if not num_str.isdigit():
+        return None # only handle numbers after !
 
-    # Parse and execute
-    command_list = parse_cmd(user_input)
-    if command_list:
-        first_cmd = command_list[0]
-        result = execute_command(first_cmd)
-        
-        print()  # New line after command
-        if result["output"]:
-            print(result["output"])
-        if result["error"]:
-            print(f"Error: {result['error']}")
+    num = int(num_str)  # typecast num as an int to check for boundary issue
 
+    # if num is out of the range of cmd history, error message
+    if num < 1 or num > len(cmd_history):
+        return None
+    return cmd_history[num - 1]
 
-    lines = [f"{i+1} {c}" for i, c in enumerate(cmd_history)]
-    return lines
 
 '''
 chmod:
@@ -530,11 +520,13 @@ def execute_command(command_dict):
         'cd': cd,
         'wc':wc,
         'sort': sort,
-        'mv' :mv 
+        'mv' : mv, 
         'head': head, 
         'tail': tail,
         'cat': cat,
-        'less': less
+        'less': less,
+        'rm': rm,
+        'cp': cp,
         # etc.ex
     }
     
@@ -548,8 +540,9 @@ def execute_command(command_dict):
 if __name__ == "__main__":
     cmd_list = parse_cmd("ls Assignments -lah | grep '.py' | wc -l > output")
     print(cmd_list)
-    # sys.exit(0)
     cmd = ""  # empty cmd variable
+
+    cmd_history = []    # list containing commands previously used
 
     print_cmd(cmd)  # print to terminal
 
@@ -605,6 +598,15 @@ if __name__ == "__main__":
         elif char in "\r":  # return pressed
             # Save the current command before processing
             user_input = cmd.strip()
+
+            # uhhhhh
+            if user_input:
+                expanded = exclamation(user_input)
+                if expanded:
+                    user_input = expanded
+
+            # Save command entered to history list
+            cmd_history.append(user_input)
             
             if user_input:  # Only process if there's actually a command
                 # Show execution message
