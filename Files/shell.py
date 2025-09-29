@@ -203,6 +203,7 @@ def pwd(parts):
     try:
         current_directory = os.getcwd()
         return {"output":current_directory, "error":None}
+    # if anything goes wrong, return an error message
     except Exception as e:
         return {"output":None, "error": f"pwd:{str(e)}"}
 
@@ -260,7 +261,6 @@ def cat():
 '''
 less:
 allows the user to only see snippets of files
-- same security concern here
 '''
 def less():
     # code here
@@ -271,31 +271,44 @@ head:
 displays the first ten lines of a file
 '''
 def head(parts):
+    # if params doesn't exist, defaults to an empty list
     params = parts.get("params") or []
+    # if flags doesn't exist, defaults to an empty string
     flags = parts.get("flags") or ""
 
+    # if a filename is not provided, return an error message
     if not params:
         return {"output": None, "error": "Head: missing file operand"}
     
+    # assumes the first parameter is a filename
     filename = params[0]
     # default number of lines to show
     n = 10
 
     if "n" in flags:
+        # check that there's at least one more parameter after the filename
         if len(params) > 1:
+            # tries to convert the second parameter to an integer
             try:
                 n = int(params[1])
+            # if the second parameter isn't an integer return an error message
             except ValueError:
                 return {"output": None, "error": "head: invalid number of lines"}
+        # if the user typed head {filename} -n without a number after the n
+        # return an error message
         else:
             return {"output": None, "error": "head: option requires an argument -- 'n'"}
-        
+    # tries to open the file and read its lines    
     try:
         with open(filename, "r", encoding="utf-8") as f:
+            # reads all lines into a list
             lines = f.readlines()
+            # returns the first n lines as a single string
             return {"output": "".join(lines[:n]), "error": None}
+    # if the file doesn't exist, return an error message
     except FileNotFoundError:
         return {"output": None, "error": f"head: {filename}: No such file or directory"}
+    # if the user doesn't have permission to read the file, return an error message
     except PermissionError:
         return {"output": None, "error": f"head: {filename}: Permission denied"}
     
@@ -304,31 +317,45 @@ tail:
 prints the data at the end of a file
 '''
 def tail(parts):
+    # if params doesn't exist, defaults to an empty list
     params = parts.get("params") or []
+    # if flags doesn't exist, defaults to an empty string
     flags = parts.get("flags") or ""
 
+    # if a filename is not provided, return an error message
     if not params:
         return {"output": None, "error": "tail: missing the file operand"}
     
+    # assumes the first parameter is a filename
     filename = params[0]
     # default number of lines to show
     n = 10
 
+    # if the user included the "n" flag
     if "n" in flags:
+        # check that there's at least one more parameter after the filename
         if len(params) > 1:
+            # tries to convert the second parameter to an integer
             try:
                 n = int(params[1])
+            # if the second parameter isn't an integer return an error message
             except ValueError:
                 return {"output": None, "error": "tail: invalid number of lines"}
+        # if the user typed tail {filename} -n without a number after the n
+        # return an error message
         else:
             return {"output": None, "error": "tail: option requires an argument -- 'n'"}
-        
+    # tries to open the file and read its lines   
     try:
         with open(filename, "r", encoding="utf-8") as f:
+            # reads all lines into a list
             lines = f.readlines()
+            # returns the last n lines as a single string
             return {"output": "".join(lines[-n:]), "error": None}
+    # if the file doesn't exist, return an error message
     except FileNotFoundError:
         return {"output": None, "error": f"tail: cannot open '{filename}': No such file"}
+    # if the user doesn't have permission to read the file, return an error message
     except PermissionError:
         return {"output": None, "error": f"tail: cannot open '{filename}': Permission denied"}
 '''
@@ -417,8 +444,6 @@ sort:
 sorts the contents of a file(s) in ASCII order
 '''
 def sort(parts):
-
-
     params = parts.get("params") or []
 
     if not params:
@@ -430,25 +455,15 @@ def sort(parts):
         with open(filename, "r", encoding ="utf-8") as f:
 
             lines = f.readlines()
-
             sorted_lines = sorted(line.strip() for line in lines)
-
-
             result ="\n".join(sorted_lines)
 
             return {"output": result, "error":None}
+        
     except FileNotFoundError:
         return{"output":None, "error":f"sort: {filename}: no such file exists"}
-
     except PermissionError:
         return{"output":None, "error":f"sort:{filename}: permisiion denied"}
-
-
-
-
-
-
-
     pass
 '''
 whoami: 
