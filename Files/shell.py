@@ -303,10 +303,34 @@ def head(parts):
 tail:
 prints the data at the end of a file
 '''
-def tail():
-    # code here
-    pass
+def tail(parts):
+    params = parts.get("params") or []
+    flags = parts.get("flags") or ""
 
+    if not params:
+        return {"output": None, "error": "tail: missing the file operand"}
+    
+    filename = params[0]
+    # default number of lines to show
+    n = 10
+
+    if "n" in flags:
+        if len(params) > 1:
+            try:
+                n = int(params[1])
+            except ValueError:
+                return {"output": None, "error": "tail: invalid number of lines"}
+        else:
+            return {"output": None, "error": "tail: option requires an argument -- 'n'"}
+        
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            return {"output": "".join(lines[-n:]), "error": None}
+    except FileNotFoundError:
+        return {"output": None, "error": f"tail: cannot open '{filename}': No such file"}
+    except PermissionError:
+        return {"output": None, "error": f"tail: cannot open '{filename}': Permission denied"}
 '''
 grep:
 finds matching words within text files
@@ -320,7 +344,6 @@ wc:
 counts the total number of words in a file
 '''
 def wc(parts):
-    # code here
     params = parts.get("params") or []
 
     if not params:
@@ -438,9 +461,6 @@ def whoami(parts):
     except Exception as e:
         return {"output": None, "error": f"whoami: {str(e)}"}
 
-
-
-
 def execute_command(command_dict):
     """
     Command dispatcher - routes commands to their respective functions
@@ -458,7 +478,8 @@ def execute_command(command_dict):
         'wc':wc,
         'sort': sort,
         'mv' :mv,
-        'head': head, 
+        'head': head,
+        'tail': tail 
         # 'mkdir': mkdir,
         # 'cat': cat,
         # etc.ex
