@@ -8,7 +8,7 @@
 | :-----: | ------------------------------------------------------ | :----------------: | :---: |
 | **_1_** | **_Commands_**                                         ||        |
 |    1    | _ls -lah_                                              |Jadyn|✔      |
-|    2    | _mkdir bananas_                                        |Andrew|        |
+|    2    | _mkdir bananas_                                        |Andrew|✔       |
 |    3    | _cd bananas_                                           |Jadyn|✔        |
 |    4    | _cd .._                                                |Jadyn|✔        |
 |    5    | _cd ~_                                                 |Jadyn|✔        |
@@ -25,7 +25,7 @@
 |   16    | _history_                                              |Andrew|        |
 |   17    | _!x_                                                   ||        |
 |   18    | _chmod 777 somefile.txt_                               ||        |
-|   19    | _sort bacon.txt_                                       |Soma| ✔       |
+|   19    | _sort bacon.txt_                                       |Soma|✔       |
 |   20    | _Command of your choice_                               |Andrew|✔        |
 | **_2_** | **_Piping_**                                           ||        |
 |         | Similar to (but open for me to choose command):        ||        |
