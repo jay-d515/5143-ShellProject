@@ -7,8 +7,8 @@
 |    #    | Item                                                   |  Who Worked on it  | Done? |
 | :-----: | ------------------------------------------------------ | :----------------: | :---: |
 | **_1_** | **_Commands_**                                         ||        |
-|    1    | _ls -lah_                                              |Jadyn               |✔      |
-|    2    | _mkdir bananas_                                        |Andrew        |
+|    1    | _ls -lah_                                              |Jadyn|✔      |
+|    2    | _mkdir bananas_                                        |Andrew|        |
 |    3    | _cd bananas_                                           |Jadyn|✔        |
 |    4    | _cd .._                                                |Jadyn|✔        |
 |    5    | _cd ~_                                                 |Jadyn|✔        |
