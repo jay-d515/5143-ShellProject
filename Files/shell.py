@@ -599,11 +599,11 @@ if __name__ == "__main__":
             # Save the current command before processing
             user_input = cmd.strip()
 
-            # uhhhhh
+            # Executes the !x command
             if user_input:
-                expanded = exclamation(user_input)
-                if expanded:
-                    user_input = expanded
+                list_num = exclamation(user_input)
+                if list_num:
+                    user_input = list_num
 
             # Save command entered to history list
             cmd_history.append(user_input)
