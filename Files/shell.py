@@ -7,6 +7,7 @@ This file is about capturing the user input so that you can mimic shell behavior
 """
 import os
 import sys
+import shutil # used for file "handling" (cp, rm)
 import getpass # used for whoami function
 from time import sleep
 from rich import print
@@ -212,12 +213,12 @@ mv:
 moves files/directories to a different location and renames files
 '''
 def mv(parts):
-
-    params =parts.get("params") or []
+    params = parts.get("params") or []
     if len(params)<2:
         return {"output":None, "error":"mv: missing file operation"}
 
     source, dest = params[0], params[1]
+
     try:
         os.rename(source, dest)
         return {"output":None, "error":None}
@@ -225,10 +226,7 @@ def mv(parts):
         return {"output":None, "error":f"mv:{source}: There is no such file exixts"}
     except PermissionError:
         return{"output":None, "error":f"mv:permission denied"}        
-
-
     except Exception as e:
-
         return{"output":None, "error":f"mv:{str(e)}"}    
     
 
@@ -237,16 +235,63 @@ cp:
 makes a copy of the first argument into the second argument
 '''
 def cp(parts):
-    # code here
-    pass
+    params = parts.get("params") or []
+    if len(params)<2:
+        return {"output":None, "error":"cp: missing file operation"}
+
+    source, dest = params[0], params[1]
+
+    try:
+        shutil.copy(source, dest)   # copies contents of a given source file, 
+                                    # and creates a destination file with those contents.
+        return {"output":None, "error":None}
+    except FileNotFoundError:
+        return {"output":None, "error":f"cp:{source}: There is no such file exixts"}
+    except PermissionError:
+        return{"output":None, "error":f"cp:permission denied"}
+    except Exception as e:
+        return{"output":None, "error":f"cp:{str(e)}"} 
 
 '''
 rm:
 allows the user to delete a file/directory by passing its name
+
+- DOES NOT WORK YET 
 '''
-def rm():
-    # code here
-    pass
+def rm(parts):
+    params = parts.get("params",None) or []
+    flags = parts.get("flags",None) or ""
+
+    if not params:
+        return {"output": None, "error": "mkdir: missing operand"}
+
+    try:
+        for path in parts:
+            # remove a single file, stand-alone or within a directory
+            if os.path.isfile(path):
+                os.remove(path)
+            
+            # recursive rm, with -r flag set
+            elif os.path.isdir(path): # if the parameter is a directory, recursively delete
+                if "r" in flags:
+                    for files in os.listdir(path):
+                        shutil.rmtree(path) # deletes entire "tree" of files
+
+            # if the file/directory doesn't exits, print error message
+            else: 
+                return {"output": None, "error": f"rm: cannot remove '{path}': No such file or directory"}
+
+            return {"output":None, "error":None}
+
+    except FileNotFoundError:
+        return {"output":None, "error":f"rm:{source}: There is no such file exixts"}
+    except PermissionError:
+        return{"output":None, "error":f"rm:permission denied"}
+    except Exception as e:
+        return{"output":None, "error":f"rm:{str(e)}"} 
+
+    
+
 
 '''
 cat:
@@ -380,13 +425,11 @@ def wc(parts):
 
     try: 
         with open(filename, "r", encoding="utf -8")as f:
-            text =f.read()
+            text = f.read()
             word_count =len(text.split())
             return{"output": f"{word_count} of {filename} is :", "error": None}
-    
     except FileNotFoundError:
         return{"output":None, "error":f"wc:{filename}: no such file or file does not exists"}
-    
     except PermissionError:
         return{"output":None, "error": f"wc:{filename}:Permission denied"}                
 
@@ -445,25 +488,29 @@ sorts the contents of a file(s) in ASCII order
 '''
 def sort(parts):
     params = parts.get("params") or []
-
     if not params:
         return{"output":None, "error": "sort:missing file operand"}
 
-    filename =params[0]
+    filename = params[0]
 
     try:
         with open(filename, "r", encoding ="utf-8") as f:
-
             lines = f.readlines()
             sorted_lines = sorted(line.strip() for line in lines)
             result ="\n".join(sorted_lines)
-
             return {"output": result, "error":None}
         
     except FileNotFoundError:
         return{"output":None, "error":f"sort: {filename}: no such file exists"}
     except PermissionError:
         return{"output":None, "error":f"sort:{filename}: permisiion denied"}
+
+
+
+
+
+
+
     pass
 '''
 whoami: 
@@ -476,6 +523,9 @@ def whoami(parts):
     except Exception as e:
         return {"output": None, "error": f"whoami: {str(e)}"}
 
+
+
+
 def execute_command(command_dict):
     """
     Command dispatcher - routes commands to their respective functions
@@ -483,6 +533,7 @@ def execute_command(command_dict):
     output: dict: {"output":string,"error":string}
     """
     command_map = {
+        # Add more commands here as you implement them
         'pwd': pwd,
         'ls': ls,
         #'history': history,
@@ -492,9 +543,7 @@ def execute_command(command_dict):
         'cd': cd,
         'wc':wc,
         'sort': sort,
-        'mv' :mv,
-        'head': head,
-        'tail': tail 
+        'mv' :mv 
         # 'mkdir': mkdir,
         # 'cat': cat,
         # etc.ex
