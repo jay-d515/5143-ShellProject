@@ -9,6 +9,7 @@ Andrew's sources used - geeksforgeeks, chatgpt (redirection, piping())
 """
 import os
 import sys
+import stat
 import shutil # used for file "handling" (cp, rm)
 import getpass # used for whoami function
 from time import sleep
@@ -391,7 +392,98 @@ def cat(parts):
         return {"output": None, "error": f"cat: {filename}: Permission denied"}
     except Exception as e:
         return {"output": None, "error": f"cat: {str(e)}"}
+
+
+'''changes the permissions of a file 
+what the numbers mean in command ex: 777 
+it grants permission access for a file 
+the [0] = owner
+[1] = group
+[2] = others 
+"0": "---", "1": "--x", "2": "-w-", "3": "-wx",
+"4": "r--", "5": "r-x", "6": "rw-", "7": "rwx"
+'''
+def chmod(parts):
+
+    params = parts.get("params") or []
+
+    if len(params) < 2:
+        return{"outpu":None, "error": "chmod:missing operand \n usage: chmod <mode> <filename>"}
     
+
+    mode_str, filename = params[0], params[1]
+
+    try:
+        #this convert  the strings like "777" into octal int (example 0o777)
+
+        mode = int(mode_str, 8)
+
+        os.chmod(filename, mode)
+
+        permissions = stat.filemode(mode)
+
+        return {"output": f"permission of '{filename}' changed to {mode_str}", "error":None}
+
+    except ValueError:
+        return {"ouput":None, "error": f"chmod invalid mode:'{mode_str}'", "error":None}
+
+    except FileNotFoundError:
+        return{"output":None, "error":f"chmod: there no such file '{filename}'"}
+
+    except PermissionError:
+        return {"output": None, "error": f"chmod: changing permissions of '{filename}': Permission denied"}
+
+    except Exception as e:
+        return {"output": None, "error": f"chmod: {str(e)}"}
+
+def wc(parts):
+    '''
+    counts the total number of words in a file.
+
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
+    params = parts.get("params") or []
+
+    if not params:
+        return{"output": None, "error": "wc:missing the command"}
+
+    filename = params[0]
+
+    try: 
+        with open(filename, "r", encoding="utf -8")as f:
+            text = f.read()
+            word_count = len(text.split())
+            return{"output": f"{word_count} of {filename} is :", "error": None}
+    except FileNotFoundError:
+        return{"output":None, "error":f"wc:{filename}: no such file or file does not exists"}
+    except PermissionError:
+        return{"output":None, "error": f"wc:{filename}:Permission denied"}                
+
+'''sort:
+sorts the contents of a file(s) in ASCII order
+'''
+def sort(parts):
+    '''
+    sorts the contents of a file(s) in ASCII order.
+    '''
+    params = parts.get("params") or []
+    if not params:
+        return{"output":None, "error": "sort:missing file operand"}
+
+    filename = params[0]
+
+    try:
+        with open(filename, "r", encoding ="utf-8") as f:
+            lines = f.readlines()
+            sorted_lines = sorted(line.strip() for line in lines)
+            result ="\n".join(sorted_lines)
+            return {"output": result, "error":None}
+        
+    except FileNotFoundError:
+        return{"output":None, "error":f"sort: {filename}: no such file exists"}
+    except PermissionError:
+        return{"output":None, "error":f"sort:{filename}: permisiion denied"}
 
 '''
 less:
@@ -587,32 +679,6 @@ def grep(parts):
     return {"output": "\n".join(output_lines), "error": None}
     
 '''
-wc:
-counts the total number of words in a file
-'''
-def wc(parts):
-    '''
-    counts the total number of words in a file.
-
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
-    '''
-    params = parts.get("params") or []
-
-    if not params:
-        return{"output": None, "error": "wc:missing the command"}
-
-    filename = params[0]
-
-    try: 
-        with open(filename, "r", encoding="utf -8")as f:
-            text = f.read()
-            word_count = len(text.split())
-            return{"output": f"{word_count} of {filename} is :", "error": None}
-    except FileNotFoundError:
-        return{"output":None, "error":f"wc:{filename}: no such file or file does not exists"}
-    except PermissionError:
-        return{"output":None, "error": f"wc:{filename}:Permission denied"}                
 
 
 '''
@@ -655,42 +721,6 @@ def exclamation(user_input):
     return cmd_history[num - 1]
 
 
-'''
-chmod:
-changes permissions of files or directories to users
-'''
-def chmod():
-    '''
-    changes permissions of files or directories to users.
-    '''
-    # code here
-    pass
-
-'''
-sort:
-sorts the contents of a file(s) in ASCII order
-'''
-def sort(parts):
-    '''
-    sorts the contents of a file(s) in ASCII order.
-    '''
-    params = parts.get("params") or []
-    if not params:
-        return{"output":None, "error": "sort:missing file operand"}
-
-    filename = params[0]
-
-    try:
-        with open(filename, "r", encoding ="utf-8") as f:
-            lines = f.readlines()
-            sorted_lines = sorted(line.strip() for line in lines)
-            result ="\n".join(sorted_lines)
-            return {"output": result, "error":None}
-        
-    except FileNotFoundError:
-        return{"output":None, "error":f"sort: {filename}: no such file exists"}
-    except PermissionError:
-        return{"output":None, "error":f"sort:{filename}: permisiion denied"}
 
 '''
 whoami: 
@@ -899,6 +929,7 @@ if __name__ == "__main__":
             cmd += char  # add typed character to our "cmd"
 
             print_cmd(cmd)  # print the cmd out
+
 
 
 
