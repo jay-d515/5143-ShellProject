@@ -296,7 +296,7 @@ allows the user to view the contents of a file
 - how are we going to handle security here?
   only allowed access if the permissions are correctly set
 '''
-ef cat(parts):
+def cat(parts):
     """
     cat command: prints the contents of a file
     """
@@ -785,5 +785,6 @@ if __name__ == "__main__":
             cmd += char  # add typed character to our "cmd"
 
             print_cmd(cmd)  # print the cmd out
+
 
 
