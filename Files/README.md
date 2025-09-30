@@ -30,13 +30,13 @@
 |   18    | _chmod 777 somefile.txt_                               |Soma|     ✔   |
 |   19    | _sort bacon.txt_                                       |Soma|✔       |
 |   20    | _Command of your choice_                               |Andrew|✔        |
-| **_2_** | **_Piping_**                                           ||        |
+| **_2_** | **_Piping_**                                           |Andrew|   ✔     |
 |         | Similar to (but open for me to choose command):        ||        |
 |         | _grep bacon bacon.txt \| wc -l_                        ||        |
-| **_3_** | **_Redirection_**                                      ||        |
+| **_3_** | **_Redirection_**                                      |Andrew|   ✔     |
 |         | Similar to (but open for me to choose):                ||        |
 |         | _cat file1 file2 > file0_                              ||        |
-| **_4_** | **_General_**                                          |         |
+| **_4_** | **_General_**                                          |All Members|
 |         | Prompt line acts correct (cleans command etc.)         ||        |
 |         | Arrow keys work                                        ||        |
 |         | Items were not printed to the screen unnecessarily     ||        |
@@ -54,7 +54,8 @@
 ## Incomplete Features
 #### In this project, we had a couple of incomplete features.
 #### 1. Not all commands have their appropriate flags running
-#### 2. Help command does not print the actual command, but rather displays its associated docstring
+#### 2. Arrow keys do not navigate to previous commands, and vice versa
+#### 3. Help command does not print the actual command, but rather displays its associated docstring
 
 ## References
 #### Our references used were as follows:
