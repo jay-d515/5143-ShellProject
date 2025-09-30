@@ -20,7 +20,7 @@ from getch import Getch
 ##################################################################################
 
 getch = Getch()  # create instance of our getch class
-prompt = "$"  # set default prompt
+#prompt = "$"  # set default prompt
 # global variable to store current directory
 current_directory = "/"
 
@@ -75,7 +75,13 @@ def print_cmd(cmd):
     """
     padding = " " * 80
     sys.stdout.write("\r" + padding)
-    sys.stdout.write("\r" + prompt + cmd)
+
+    try:
+        cwd = os.getcwd()
+    except:
+        cwd = "/"
+
+    sys.stdout.write(f"\r[{cwd}]$ {cmd}")
     sys.stdout.flush()
 
 '''
