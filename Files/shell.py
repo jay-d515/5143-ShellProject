@@ -681,7 +681,6 @@ def grep(parts):
 
     return {"output": "\n".join(output_lines), "error": None}
     
-'''
 
 
 '''
