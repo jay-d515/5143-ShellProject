@@ -349,17 +349,65 @@ def rm(parts):
 cat:
 allows the user to view the contents of a file
 '''
-def cat():
-    # code here
-    pass
+def cat(parts):
+    """
+    cat command: prints the contents of a file
+    """
+    params = parts.get("params") or []
+    if not params:
+        return {"output": None, "error": "cat: missing file operand"}
+    
+    filename = params[0]
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            return {"output": f.read(), "error": None}
+    except FileNotFoundError:
+        return {"output": None, "error": f"cat: {filename}: No such file"}
+    except PermissionError:
+        return {"output": None, "error": f"cat: {filename}: Permission denied"}
+    except Exception as e:
+        return {"output": None, "error": f"cat: {str(e)}"}
+    
 
 '''
 less:
 allows the user to only see snippets of files
 '''
-def less():
-    # code here
-    pass
+def less(parts):
+
+    params =parts.get("parts") or[] 
+
+    if not params:
+        return {"output": None, "error":"less:missing file operand"}
+    
+    filename =params[0]
+
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        #show file content 20 lines at a time
+        page_size = 20
+
+        for i in range(0,len(lines), page_size):
+            chunk = lines[i:i +page_size]
+            for line in chunk:
+                print(line.rstrip())  #it prints without extra newlines
+
+            user_input =input("--for more-- (enter to continue, press'q' to quit)")
+            
+            if user_input.lower() == "q":
+                
+                break 
+        return {"output": None, "error": None}
+    
+    except FileNotFoundError:
+        return {"output": None, "error":f"cat:{filename} No such file"}
+    except PermissionError:
+        return{"output":None, "error":f"rm:permission denied"}
+    except Exception as e:
+        return{"output":None, "error":f"rm:{str(e)}"}
+    
 
 '''
 head:
@@ -783,6 +831,7 @@ if __name__ == "__main__":
             cmd += char  # add typed character to our "cmd"
 
             print_cmd(cmd)  # print the cmd out
+
 
 
 
