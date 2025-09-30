@@ -273,32 +273,6 @@ def pwd(parts):
     except Exception as e:
         return {"output":None, "error": f"pwd:{str(e)}"}
 
-'''
-mv:
-moves files/directories to a different location and renames files
-'''
-def mv(parts):
-    '''
-    moves files/directories to a different location and renames files.
-
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
-    '''
-    params = parts.get("params") or []
-    if len(params)<2:
-        return {"output":None, "error":"mv: missing file operation"}
-
-    source, dest = params[0], params[1]
-
-    try:
-        os.rename(source, dest)
-        return {"output":None, "error":None}
-    except FileNotFoundError:
-        return {"output":None, "error":f"mv:{source}: There is no such file exixts"}
-    except PermissionError:
-        return{"output":None, "error":f"mv:permission denied"}        
-    except Exception as e:
-        return{"output":None, "error":f"mv:{str(e)}"}        
 
 '''
 cp:
@@ -392,6 +366,35 @@ def cat(parts):
         return {"output": None, "error": f"cat: {filename}: Permission denied"}
     except Exception as e:
         return {"output": None, "error": f"cat: {str(e)}"}
+
+
+'''
+mv:
+moves files/directories to a different location and renames files
+'''
+def mv(parts):
+    '''
+    moves files/directories to a different location and renames files.
+
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
+    params = parts.get("params") or []
+    if len(params)<2:
+        return {"output":None, "error":"mv: missing file operation"}
+
+    source, dest = params[0], params[1]
+
+    try:
+        os.rename(source, dest)
+        return {"output":None, "error":None}
+    except FileNotFoundError:
+        return {"output":None, "error":f"mv:{source}: There is no such file exixts"}
+    except PermissionError:
+        return{"output":None, "error":f"mv:permission denied"}        
+    except Exception as e:
+        return{"output":None, "error":f"mv:{str(e)}"}        
+
 
 
 '''changes the permissions of a file 
@@ -929,6 +932,7 @@ if __name__ == "__main__":
             cmd += char  # add typed character to our "cmd"
 
             print_cmd(cmd)  # print the cmd out
+
 
 
 
