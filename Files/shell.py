@@ -269,10 +269,9 @@ def rm(parts):
             if os.path.isfile(path):
                 os.remove(path)
 
-            # recursive rm, with -rf flag set
-            # will NOT ask for user confirmation to delete the directory
+            # recursive rm, with -r flag set
             elif os.path.isdir(path): # if the parameter is a directory, recursively delete
-                if 'rf' in flags:
+                if 'r' in flags:
                     for files in os.listdir(path):
                         shutil.rmtree(path) # removes entire "tree" of files
 
@@ -403,9 +402,80 @@ def tail(parts):
 grep:
 finds matching words within text files
 '''
-def grep():
-    # code here
-    pass
+def grep(parts):
+    """
+    Grep:
+    - runs a search on a file or through input.
+    """
+    params = parts.get("params") or []
+    if not params:
+        return {"output": None, "error": "grep: missing search pattern"}
+    
+    pattern = params[0]
+    input_text = parts.get("input")
+    matched_lines = []
+
+    if input_text:
+        lines_to_search = input_text.splitlines()
+    # fallback: search a file if provided
+    else:
+        if len(params > 1):
+            filename = params[1]
+        else:
+            None
+        if not filename:
+            return {"output": None, "error": "grep: no input or file specified"}
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                lines_to_search = f.readlines()
+        except FileNotFoundError:
+            return {"output": None, "error": f"grep: {filename}: No such file or directory"}
+        except PermissionError:
+            return {"output": None, "error": f"grep: {filename}: Permission denied"}
+
+    for line in lines_to_search:
+        if pattern in line:
+            lines.append(line)
+
+    return {"output": "\n".join(matched_lines), "error": None}
+    '''
+
+    """
+    Grep implementation (no flags):
+    - Searches for a pattern in piped input or a file.
+    """
+    params = parts.get("params") or []
+
+    if not params:
+        return {"output": None, "error": "grep: missing search pattern"}
+
+    pattern = params[0]
+    output_lines = []
+
+    # Use piped input if available
+    if parts.get("input"):
+        lines = parts["input"].split("\n")
+    else:
+        # Must have a filename if no piped input
+        if len(params) < 2:
+            return {"output": None, "error": "grep: missing file operand"}
+        filename = params[1]
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                # Read all lines into memory while the file is open
+                lines = f.readlines()
+        except FileNotFoundError:
+            return {"output": None, "error": f"grep: {filename}: No such file or directory"}
+        except PermissionError:
+            return {"output": None, "error": f"grep: {filename}: Permission denied"}
+
+    # Search for the pattern
+    for line in lines:
+        if pattern in line:
+            output_lines.append(line.rstrip("\n"))
+
+    return {"output": "\n".join(output_lines), "error": None}
+    '''
 
 '''
 wc:
@@ -527,9 +597,22 @@ def execute_command(command_dict):
         'less': less,
         'rm': rm,
         'cp': cp,
+        'grep': grep
         # etc.ex
     }
     
+    prev_output = None
+
+    for cmd_dict in command_list:
+        if prev_output is not None:
+            cmd_dict["input"] = prev_output
+
+        result = execute_command(cmd_dict)
+
+        prev_output = result["output"]
+
+    return {"output": prev_output, "error": None}
+
     cmd_name = command_dict.get('cmd', '').lower()
     
     if cmd_name in command_map:
@@ -607,7 +690,25 @@ if __name__ == "__main__":
 
             # Save command entered to history list
             cmd_history.append(user_input)
-            
+
+            # Piping segement (if needed)
+            command_list = parse_cmd(user_input)
+            prev_output = None
+
+            for command_dict in command_list:
+                if prev_output is not None:
+                    command_dict["input"] = prev_output
+
+                result = execute_command(command_dict)
+                prev_output = result.get("output")
+
+                if result.get("error"):
+                    print(f"Error: {result['error']}")
+
+                cmd = ""
+                print_cmd(cmd)
+
+
             if user_input:  # Only process if there's actually a command
                 # Show execution message
                 cmd = "Executing command...."
@@ -619,8 +720,7 @@ if __name__ == "__main__":
                 
                 # For now, just execute the first command (no pipes yet)
                 if command_list:
-                    first_cmd = command_list[0]
-                    result = execute_command(first_cmd)
+                    result = execute_command(command_list)
                     
                     # Display the result
                     print()  # New line after command
