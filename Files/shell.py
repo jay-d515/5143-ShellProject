@@ -4,7 +4,7 @@ This file is about using getch to capture input and handle certain keys
 when the are pushed. The 'command_helper.py' was about parsing and calling functions.
 This file is about capturing the user input so that you can mimic shell behavior.
 
-Andrew's sources used - geeksforgeeks, chatgpt
+Andrew's sources used - geeksforgeeks, chatgpt (redirection, piping())
 
 """
 import os
@@ -28,18 +28,43 @@ parses the command line input into a list of dictionaries
 '''
 def parse_cmd(cmd_input):
     command_list = []
-    cmds = cmd_input.split("|")
+    cmds = cmd_input.split("|") # split piping on the | character
     for cmd in cmds:
-        d = {"input":None,"cmd":None,"params":[],"flags":None}
+        # add in/outfile and append to our dictionary
+        parts = {"input":None,"cmd":None,"params":[],"flags":None, "infile": None, "outfile": None, "append": None}
         subparts = cmd.strip().split()
-        d["cmd"]= subparts[0]
-        for item in subparts[1:]:
-            if "-" in item:
-                d["flags"]=item[1:]
+        i = 0
+        while i < len(subparts):
+            # command part
+            part = subparts[i]
+            # read the input from a file
+            if part == "<":
+                # grab filename, save it to dictionary
+                parts["infile"] = subparts[i+1]
+                i += 2
+            # write the output TO file
+            elif part == ">":
+                parts["outfile"] = subparts[i+1]
+                parts["append"] = False     # do not append
+                i += 2
+            # write output to a file, but append
+            elif part == ">>":
+                parts["outfile"] = subparts[i+1]
+                parts["append"] = True
+                i += 2
+            # separate the flag and add to "flags"
+            elif part.startswith("-"):
+                parts["flags"] = part[1:]
+                i += 1
             else:
-                d['params'].append(item)
-            
-        command_list.append(d)
+                # parameter handling
+                if parts["cmd"] is None:
+                    parts["cmd"] = part
+                else:
+                    parts["params"].append(part)
+                i += 1
+        # once finished, append the dictionary to command list
+        command_list.append(parts)
     return command_list
 
 def print_cmd(cmd):
@@ -272,8 +297,7 @@ def mv(parts):
     except PermissionError:
         return{"output":None, "error":f"mv:permission denied"}        
     except Exception as e:
-        return{"output":None, "error":f"mv:{str(e)}"}    
-    
+        return{"output":None, "error":f"mv:{str(e)}"}        
 
 '''
 cp:
@@ -531,21 +555,29 @@ def grep(parts):
     if not params:
         return {"output": None, "error": "grep: missing search pattern"}
 
+    # the string to match
     to_match = params[0]
     output_lines = []
 
+    # if there is input text
     if input_text:
+        # split the lines
         lines_to_search = input_text.splitlines()
         for line in lines_to_search:
+            # if the string to match is in a line, append it
             if to_match in line:
                 output_lines.append(line)
 
     elif len(params) > 1:
+        # grab the next parameter
         filename = params[1]
         try:
             with open(filename, "r", encoding = "utf-8") as f:
+                # for each line in the file
                 for line in f:
+                    # if the string matches in a line
                     if to_match in line:
+                        # append to the output
                         output_lines.append(line.rstrip("\n"))
         except FileNotFoundError:
             return {"output": None, "error": f"grep: {filename}: No such file or directory"}
@@ -675,23 +707,59 @@ def whoami(parts):
     except Exception as e:
         return {"output": None, "error": f"whoami: {str(e)}"}
 
+'''
+piping: 
+handles piping of commands as well as redirects
+'''
 def piping(command_list):
     prev_output = None
     results = []
 
+    # handles redirection if requested
     for cmd_dict in command_list:
+        if cmd_dict.get("infile"):
+            try:
+                with open(cmd_dict["infile"], "r", encoding = "utf-8") as f:
+                    cmd_dict["input"] == f.read()
+            except FileNotFoundError:
+                return {"output": None, "error": f"{cmd_dict['cmd']}: {cmd_dict['input_file']}: No such file"}
+
+        # piping the last output command
         if prev_output is not None:
             cmd_dict["input"] = prev_output
     
+    # executes the command
     result = execute_command(cmd_dict)
-    prev_output = result["output"]
+
+    # grab the outfile
+    if cmd_dict.get("outfile"):
+        # grab the output
+        if cmd_dict.get("output"):
+            # change to append mode
+            mode = "a"
+        else:
+            # change to write mode
+            mode = "w"
+        # open the output file
+        with open(cmd_dict["outfile"], mode, encoding = "utf-8") as f:
+            if result.get("output"):
+                # write to the output file
+                f.write(result["output"] + "\n")
+    else:
+        prev_output = result["output"]
+
     results.append(result)
 
+    # return the results
     if results:
         return results[-1]
     else:
         return {"output": None, "error": None}
 
+'''
+execute_command(command_dict)
+executes the command given on the command dictionary 
+'''
 def execute_command(command_dict):
     """
     Command dispatcher - routes commands to their respective functions
