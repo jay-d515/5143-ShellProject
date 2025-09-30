@@ -350,12 +350,6 @@ cat:
 allows the user to view the contents of a file
 '''
 def cat():
-    '''
-    allows the user to view the contents of a file.
-
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
-    '''
     # code here
     pass
 
@@ -364,12 +358,6 @@ less:
 allows the user to only see snippets of files
 '''
 def less():
-    '''
-    allows the user to only see snippets of files.
-
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
-    '''
     # code here
     pass
 
@@ -795,4 +783,6 @@ if __name__ == "__main__":
             cmd += char  # add typed character to our "cmd"
 
             print_cmd(cmd)  # print the cmd out
+
+
 
