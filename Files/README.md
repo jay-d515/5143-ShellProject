@@ -1,6 +1,9 @@
 # 5143 Advanced Operating Systems
 #### Shell Project - Implementation of a Basic Shell
 #### Group Members: Jadyn Dangerfield, Andrew Huff, Laxminarasimha Soma
+#### jadangerfield0515@my.msutexas.edu
+#### adhuff0205@my.msutexas.edu
+#### lsoma0109@my.msutexas.edu
 
 ## Overview
 ##### In this project, we implemented a basic shell using Python...
@@ -39,3 +42,23 @@
 |         | Items were not printed to the screen unnecessarily     ||        |
 |         | Too many messages (like successful .....) weren't used ||        |
 |         | Program did not crash or need restarted                ||        |
+
+## Instructions
+#### To run this shell, you must execute the following:
+#### 1. Ensure access to the reposity
+#### 2. Switch over to the Files directory
+#### 3. Type the command "python shell.py"
+#### 
+#### Now that the program is running, similarly use it to navigate the emulated terminal!
+
+## Incomplete Features
+#### In this project, we had a couple of incomplete features.
+#### 1. Not all commands have their appropriate flags running
+#### 2. Help command does not print the actual command, but rather displays its associated docstring
+
+## References
+#### Our references used were as follows:
+#### 1. GeeksforGeeks
+#### 2. Stackoverflow (whoami)
+#### 3. Chatgpt
+
