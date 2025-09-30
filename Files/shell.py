@@ -81,7 +81,7 @@ def print_cmd(cmd):
     except:
         cwd = "/"
 
-    sys.stdout.write(f"\r[{cwd}]$ {cmd}")
+    sys.stdout.write(f"\r{cwd}$ {cmd}")
     sys.stdout.flush()
 
 '''
