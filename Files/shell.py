@@ -411,7 +411,7 @@ def chmod(parts):
     params = parts.get("params") or []
 
     if len(params) < 2:
-        return{"outpu":None, "error": "chmod:missing operand \n usage: chmod <mode> <filename>"}
+        return{"output":None, "error": "chmod:missing operand \n usage: chmod <mode> <filename>"}
     
 
     mode_str, filename = params[0], params[1]
@@ -932,6 +932,7 @@ if __name__ == "__main__":
             cmd += char  # add typed character to our "cmd"
 
             print_cmd(cmd)  # print the cmd out
+
 
 
 
