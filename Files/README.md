@@ -20,7 +20,7 @@
 |   11    | _less somefile_                                        |Soma|        |
 |   12    | _head somefile -n 10_                                  |Jadyn|✔        |
 |   13    | _tail somefile -n 10_                                  |Jadyn|✔        |
-|   14    | _grep -lic bacon bacon.txt , ham.txt_                  |Andrew|        |
+|   14    | _grep -lic bacon bacon.txt , ham.txt_                  |Andrew|   ✔    |
 |   15    | _wc -w bacon.txt_                                      |Soma| ✔       |
 |   16    | _history_                                              |Andrew|  ✔     |
 |   17    | _!x_                                                   |Andrew|  ✔     |
