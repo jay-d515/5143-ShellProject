@@ -51,6 +51,30 @@ def print_cmd(cmd):
     sys.stdout.write("\r" + prompt + cmd)
     sys.stdout.flush()
 
+'''
+help
+- displays correct use of commands.
+'''
+def help(parts, command_map=None):
+    '''
+    displays corrects use of commands.
+    '''
+    params = parts.get("params") or []
+    if not params:
+        return {"output": "Enter a command after help to see more.", "error": None}
+    
+    name_of_cmd = params[0].lower()
+    if name_of_cmd in command_map:
+        docstr = command_map[name_of_cmd].__doc__ or "No documentation available."
+        return {"output": docstr, "error": None}
+    else:
+        return {"output": None, "error": f"help: no such command '{name_of_cmd}'"}
+
+    
+'''
+ls
+- lists the entire working directory
+'''
 def ls(parts):
     '''
     input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
@@ -129,6 +153,9 @@ exit:
 exit the shell
 '''
 def exit():
+    '''
+    forces termination of command shell.
+    '''
     os.exit
 
 '''
@@ -136,6 +163,12 @@ mkdir:
 creates a new directory 
 '''
 def mkdir(parts):
+    '''
+    creates a new directory within the current directory.
+
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
     params = parts.get("params")    
     if not params:
         return {"output": None, "error": "mkdir: missing operand"}
@@ -160,6 +193,8 @@ changes the current working directory
 '''
 def cd(parts):
     '''
+    changes the current working directory.
+
     input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
     output dict: {"output":string,"error":string}
     '''
@@ -200,6 +235,8 @@ prints the current working directory to the terminal
 '''
 def pwd(parts):
     '''
+    prints the current working directory to the terminal.
+
     input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
     output dict: {"output":string,"error":string}
     '''
@@ -215,6 +252,12 @@ mv:
 moves files/directories to a different location and renames files
 '''
 def mv(parts):
+    '''
+    moves files/directories to a different location and renames files.
+
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
     params = parts.get("params") or []
     if len(params)<2:
         return {"output":None, "error":"mv: missing file operation"}
@@ -237,6 +280,12 @@ cp:
 makes a copy of the first argument into the second argument
 '''
 def cp(parts):
+    '''
+    makes a copy of the first argument into the second argument.
+
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
     params = parts.get("params") or []
     if len(params)<2:
         return {"output":None, "error":"cp: missing file operation"}
@@ -259,6 +308,12 @@ rm:
 allows the user to delete a file/directory by passing its name
 '''
 def rm(parts):
+    '''
+    allows the user to delete a file/directory by passing its name.
+
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
     params = parts.get("params",None) or []
     flags = parts.get("flags",None) or ""
 
@@ -293,10 +348,14 @@ def rm(parts):
 '''
 cat:
 allows the user to view the contents of a file
-- how are we going to handle security here?
-  only allowed access if the permissions are correctly set
 '''
 def cat():
+    '''
+    allows the user to view the contents of a file.
+
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
     # code here
     pass
 
@@ -305,6 +364,12 @@ less:
 allows the user to only see snippets of files
 '''
 def less():
+    '''
+    allows the user to only see snippets of files.
+
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
     # code here
     pass
 
@@ -313,6 +378,12 @@ head:
 displays the first ten lines of a file
 '''
 def head(parts):
+    '''
+    displays the first ten lines of a file.
+
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
     # if params doesn't exist, defaults to an empty list
     params = parts.get("params") or []
     # if flags doesn't exist, defaults to an empty string
@@ -359,6 +430,12 @@ tail:
 prints the data at the end of a file
 '''
 def tail(parts):
+    '''
+    prints the data at the end of a file.
+
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
     # if params doesn't exist, defaults to an empty list
     params = parts.get("params") or []
     # if flags doesn't exist, defaults to an empty string
@@ -405,85 +482,53 @@ grep:
 finds matching words within text files
 '''
 def grep(parts):
-    """
-    Grep:
-    - runs a search on a file or through input.
-    """
+    '''
+    runs a search on a file or through input.
+
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
     params = parts.get("params") or []
+    input_text = parts.get("input")
+
+    # if grep doesn't have parameters, error message
     if not params:
         return {"output": None, "error": "grep: missing search pattern"}
-    
-    pattern = params[0]
-    input_text = parts.get("input")
-    matched_lines = []
+
+    to_match = params[0]
+    output_lines = []
 
     if input_text:
         lines_to_search = input_text.splitlines()
-    # fallback: search a file if provided
-    else:
-        if len(params > 1):
-            filename = params[1]
-        else:
-            None
-        if not filename:
-            return {"output": None, "error": "grep: no input or file specified"}
-        try:
-            with open(filename, "r", encoding="utf-8") as f:
-                lines_to_search = f.readlines()
-        except FileNotFoundError:
-            return {"output": None, "error": f"grep: {filename}: No such file or directory"}
-        except PermissionError:
-            return {"output": None, "error": f"grep: {filename}: Permission denied"}
+        for line in lines_to_search:
+            if to_match in line:
+                output_lines.append(line)
 
-    for line in lines_to_search:
-        if pattern in line:
-            lines.append(line)
-
-    return {"output": "\n".join(matched_lines), "error": None}
-    '''
-
-    """
-    Grep implementation (no flags):
-    - Searches for a pattern in piped input or a file.
-    """
-    params = parts.get("params") or []
-
-    if not params:
-        return {"output": None, "error": "grep: missing search pattern"}
-
-    pattern = params[0]
-    output_lines = []
-
-    # Use piped input if available
-    if parts.get("input"):
-        lines = parts["input"].split("\n")
-    else:
-        # Must have a filename if no piped input
-        if len(params) < 2:
-            return {"output": None, "error": "grep: missing file operand"}
+    elif len(params) > 1:
         filename = params[1]
         try:
-            with open(filename, "r", encoding="utf-8") as f:
-                # Read all lines into memory while the file is open
-                lines = f.readlines()
+            with open(filename, "r", encoding = "utf-8") as f:
+                for line in f:
+                    if to_match in line:
+                        output_lines.append(line.rstrip("\n"))
         except FileNotFoundError:
             return {"output": None, "error": f"grep: {filename}: No such file or directory"}
-        except PermissionError:
-            return {"output": None, "error": f"grep: {filename}: Permission denied"}
-
-    # Search for the pattern
-    for line in lines:
-        if pattern in line:
-            output_lines.append(line.rstrip("\n"))
+    else:
+        return {"output": None, "error": "grep: no input or file specified"}
 
     return {"output": "\n".join(output_lines), "error": None}
-    '''
-
+    
 '''
 wc:
 counts the total number of words in a file
 '''
 def wc(parts):
+    '''
+    counts the total number of words in a file.
+
+    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
+    output dict: {"output":string,"error":string}
+    '''
     params = parts.get("params") or []
 
     if not params:
@@ -494,7 +539,7 @@ def wc(parts):
     try: 
         with open(filename, "r", encoding="utf -8")as f:
             text = f.read()
-            word_count =len(text.split())
+            word_count = len(text.split())
             return{"output": f"{word_count} of {filename} is :", "error": None}
     except FileNotFoundError:
         return{"output":None, "error":f"wc:{filename}: no such file or file does not exists"}
@@ -507,7 +552,13 @@ history:
 prints the entire history of commands used as an enumerated list, beginning from 1 to i
 '''
 def history(parts=None):
-    lines = [f"{i+1} {cmd}" for i, cmd in enumerate(cmd_history)]
+    '''
+    prints the entire history of commands used as an enumerated list, beginning from 1 to i.
+    '''
+    lines = []
+    # enumerate and append each cmd to cmd_history
+    for i, cmd in enumerate(cmd_history):
+        lines.append(f"{i+1} {cmd}")
     return {"output": "\n".join(lines), "error": None}
 
 '''
@@ -515,6 +566,9 @@ exclamation (!):
 runs the command specified by the history index
 '''
 def exclamation(user_input):
+    '''
+    runs the command specified by the history index.
+    '''
     # if an exclamation is not attached
     if not user_input.startswith("!"):
         return None
@@ -538,6 +592,9 @@ chmod:
 changes permissions of files or directories to users
 '''
 def chmod():
+    '''
+    changes permissions of files or directories to users.
+    '''
     # code here
     pass
 
@@ -546,6 +603,9 @@ sort:
 sorts the contents of a file(s) in ASCII order
 '''
 def sort(parts):
+    '''
+    sorts the contents of a file(s) in ASCII order.
+    '''
     params = parts.get("params") or []
     if not params:
         return{"output":None, "error": "sort:missing file operand"}
@@ -569,11 +629,32 @@ whoami:
 displays the username of the logged in user
 '''
 def whoami(parts):
+    '''
+    displays the username of the logged in user.
+    '''
     try:
+        # get the user from getpass library
         user = getpass.getuser()
         return {"output": user, "error": None}
     except Exception as e:
         return {"output": None, "error": f"whoami: {str(e)}"}
+
+def piping(command_list):
+    prev_output = None
+    results = []
+
+    for cmd_dict in command_list:
+        if prev_output is not None:
+            cmd_dict["input"] = prev_output
+    
+    result = execute_command(cmd_dict)
+    prev_output = result["output"]
+    results.append(result)
+
+    if results:
+        return results[-1]
+    else:
+        return {"output": None, "error": None}
 
 def execute_command(command_dict):
     """
@@ -599,28 +680,23 @@ def execute_command(command_dict):
         'less': less,
         'rm': rm,
         'cp': cp,
-        'grep': grep
+        'grep': grep,
+        'help': help,
         # etc.ex
     }
-    
-    prev_output = None
-
-    for cmd_dict in command_list:
-        if prev_output is not None:
-            cmd_dict["input"] = prev_output
-
-        result = execute_command(cmd_dict)
-
-        prev_output = result["output"]
-
-    return {"output": prev_output, "error": None}
 
     cmd_name = command_dict.get('cmd', '').lower()
-    
+
+    # snippet to handle the 'help' command
     if cmd_name in command_map:
-        return command_map[cmd_name](command_dict)
-    else:
+        if cmd_name == "help":
+            return command_map[cmd_name](command_dict, command_map = command_map)
+        else:
+            return command_map[cmd_name](command_dict)
+    else: # if command does not exist
         return {"output": None, "error": f"Command '{cmd_name}' not found"}
+
+
 
 if __name__ == "__main__":
     cmd_list = parse_cmd("ls Assignments -lah | grep '.py' | wc -l > output")
@@ -693,24 +769,6 @@ if __name__ == "__main__":
             # Save command entered to history list
             cmd_history.append(user_input)
 
-            # Piping segement (if needed)
-            command_list = parse_cmd(user_input)
-            prev_output = None
-
-            for command_dict in command_list:
-                if prev_output is not None:
-                    command_dict["input"] = prev_output
-
-                result = execute_command(command_dict)
-                prev_output = result.get("output")
-
-                if result.get("error"):
-                    print(f"Error: {result['error']}")
-
-                cmd = ""
-                print_cmd(cmd)
-
-
             if user_input:  # Only process if there's actually a command
                 # Show execution message
                 cmd = "Executing command...."
@@ -720,9 +778,9 @@ if __name__ == "__main__":
                 # Parse the command into structured format
                 command_list = parse_cmd(user_input)
                 
-                # For now, just execute the first command (no pipes yet)
+                # Handles piping, when it didn't before
                 if command_list:
-                    result = execute_command(command_list)
+                    result = piping(command_list)
                     
                     # Display the result
                     print()  # New line after command
