@@ -6,7 +6,7 @@
 #### lsoma0109@my.msutexas.edu
 
 ## Overview
-##### In this project, we implemented a basic shell using Python...
+##### In this project, we implemented a basic shell using Python. Below, we have listed the assignment rubric which includes who worked on each command, and whether or not they were completed.
 |    #    | Item                                                   |  Who Worked on it  | Done? |
 | :-----: | ------------------------------------------------------ | :----------------: | :---: |
 | **_1_** | **_Commands_**                                         ||        |
@@ -45,7 +45,7 @@
 
 ## Instructions
 #### To run this shell, you must execute the following:
-#### 1. Ensure access to the reposity
+#### 1. Ensure access to the repository
 #### 2. Switch over to the Files directory
 #### 3. Type the command "python shell.py"
 #### 
