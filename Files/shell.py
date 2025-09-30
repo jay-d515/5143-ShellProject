@@ -17,8 +17,9 @@ from getch import Getch
 ##################################################################################
 
 getch = Getch()  # create instance of our getch class
-
 prompt = "$"  # set default prompt
+# global variable to store current directory
+current_directory = "/"
 
 '''
 parse_cmd:
@@ -163,31 +164,41 @@ def cd(parts):
     '''
 
     try:
+        # retrieves the list of parameters from parts
         params = parts.get("params",None) or []
 
         # if there are no params, default to the home directory
         if not params:
             target_directory = os.path.expanduser("~")
-
+        # if there is at least one param, store the first one in arg
         else:
             arg = params[0]
 
+            # if the argument is "~", go to the home directory
             if arg == "~":
                 target_directory = os.path.expanduser("~")
+            # if the argument is "..", move up one directory from the current one
             elif arg == "..":
                 target_directory = os.path.dirname(os.getcwd())
+            # otherwise, assume the user provided a valid path
             else:
                 target_directory = os.path.expanduser(arg)
 
+        # changes the current working directory
         os.chdir(target_directory)
+        # if successful, return no output or error
         return {"output": None, "error": None}
 
+    # if the directory doesn't exist, return an error message
     except FileNotFoundError:
         return {"output": None, "error": f"cd: no such file or directory: {params[0]}"}
+    # if the path is not a directory, return an error message
     except NotADirectoryError:
         return {"output": None, "error": f"cd: not a directory: {params[0]}"}
+    # if the user doesn't have permission to access the directory, return an error message
     except PermissionError:
         return {"output": None, "error": f"cd: permission denied: {params[0]}"}
+    # if anything else goes wrong, return a error message
     except Exception as e:
         return {"output": None, "error": f"cd: {str(e)}"}
     
@@ -202,7 +213,9 @@ def pwd(parts):
     output dict: {"output":string,"error":string}
     '''
     try:
+        # asks the OS for the current working directory
         current_directory = os.getcwd()
+        # if everything works, return the current directory with no error
         return {"output":current_directory, "error":None}
     # if anything goes wrong, return an error message
     except Exception as e:
@@ -213,19 +226,31 @@ mv:
 moves files/directories to a different location and renames files
 '''
 def mv(parts):
+    # retrieves the list of parameters from parts
     params = parts.get("params") or []
-    if len(params)<2:
+
+    # if less than two parameters are provided
+    if len(params) < 2:
+        # return an error message
         return {"output":None, "error":"mv: missing file operation"}
 
+    # first parameter is the source, second is the destination
     source, dest = params[0], params[1]
 
+    # tries to move or rename the file/directory
     try:
+        # if destination is a directory, move source into that directory
+        # if destination is a file, rename source to dest
         os.rename(source, dest)
+        # if everything works, return no output or error
         return {"output":None, "error":None}
+    # if the source file/directory doesn't exist, return an error message
     except FileNotFoundError:
         return {"output":None, "error":f"mv:{source}: There is no such file exixts"}
+    # if the user doesn't have permission to move/rename, return an error message
     except PermissionError:
         return{"output":None, "error":f"mv:permission denied"}        
+    # if anything else goes wrong, return an error message
     except Exception as e:
         return{"output":None, "error":f"mv:{str(e)}"}    
     
