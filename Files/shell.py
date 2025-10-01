@@ -497,7 +497,7 @@ def wc(parts):
         with open(filename, "r", encoding="utf -8")as f:
             text = f.read()
             word_count = len(text.split())
-            return{"output": f"{word_count} of {filename} is :", "error": None}
+            return{"output": f"word count of {filename} is: {word_count}", "error": None}
     except FileNotFoundError:
         return{"output":None, "error":f"wc:{filename}: no such file or file does not exists"}
     except PermissionError:
@@ -780,6 +780,21 @@ def whoami(parts):
         return {"output": None, "error": f"whoami: {str(e)}"}
 
 '''
+clear
+clears the terminal screen
+'''
+def cls(parts=None):
+    '''
+    clears the terminal screen.
+    '''
+    sys.stdout.write("\033[2J\033[H")
+    sys.stdout.flush()
+
+    # prints an empty command prompt after clearing the terminal
+    print_cmd("")
+    return {"output": None, "error": None}
+
+'''
 piping: 
 handles piping of commands as well as redirects
 '''
@@ -858,6 +873,7 @@ def execute_command(command_dict):
         'cp': cp,
         'grep': grep,
         'help': help,
+        'cls': cls
         # etc.ex
     }
 
