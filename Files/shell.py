@@ -92,18 +92,43 @@ help
 '''
 def help(parts, command_map=None):
     '''
-    displays corrects use of commands.
+    provides more information on a given command.
+
+    - displays correct use of commands.
+    - if no command, lists all available commands.
     '''
+
     params = parts.get("params") or []
     if not params:
-        return {"output": "Enter a command after help to see more.", "error": None}
-    
-    name_of_cmd = params[0].lower()
-    if name_of_cmd in command_map:
-        docstr = command_map[name_of_cmd].__doc__ or "No documentation available."
+        cmds = sorted(command_map.keys())   # sorts cmds in alpha order
+        line = ["Commands list:\n"]
+        for cmd in cmds:
+            doc = command_map[cmd].__doc__  # print the associated docstr
+            if doc:
+                summary = doc.strip().split("\n")[0] 
+            # used chatgpt for this part
+            line.append(f" {cmd:<10} {summary}")    # left-aligns and pads right until 10 chars reached
+        return {"output": "\n".join(line), "error": None}
+
+    cmd_name = params[0].lower()
+    if cmd_name in command_map:
+        docstr = command_map[cmd_name].__doc__ or "No documentation available."
         return {"output": docstr, "error": None}
     else:
-        return {"output": None, "error": f"help: no such command '{name_of_cmd}'"}
+        return {"output": None, "error": f"help: no such command '{cmd_name}'"}
+    
+    # If one or more commands are given: show docs
+    results = []
+    for cmd_name in params:
+        cmd_name = cmd_name.lower()
+        if cmd_name in command_map:
+            docstr = command_map[cmd_name].__doc__ or "No documentation available."
+            results.append(f"{cmd_name}:\n{docstr.strip()}")
+        else:
+            results.append(f"help: no such command '{cmd_name}'")
+
+    return {"output": "\n\n".join(results), "error": None}
+
 
     
 '''
@@ -112,8 +137,12 @@ ls
 '''
 def ls(parts):
     '''
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
+    lists all of the contents in the current working directory.
+
+    flags:
+     -l : displays file details in long format
+     -a : shows all files, including hidden ones
+     -h : makes file details human-readable
     '''
     input = parts.get("input",None)
     flags = parts.get("flags",None) or ""
@@ -200,9 +229,6 @@ creates a new directory
 def mkdir(parts):
     '''
     creates a new directory within the current directory.
-
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
     '''
     params = parts.get("params")    
     if not params:
@@ -229,9 +255,6 @@ changes the current working directory
 def cd(parts):
     '''
     changes the current working directory.
-
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
     '''
 
     try:
@@ -281,9 +304,6 @@ prints the current working directory to the terminal
 def pwd(parts):
     '''
     prints the current working directory to the terminal.
-
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
     '''
     try:
         # asks the OS for the current working directory
@@ -299,6 +319,10 @@ mv:
 moves files/directories to a different location and renames files
 '''
 def mv(parts):
+    '''
+    moves files/directories to a different location and renames files
+    '''
+
     params = parts.get("params") or []
     if len(params)<2:
         return {"output":None, "error":"mv: missing file operation"}
@@ -323,9 +347,6 @@ makes a copy of the first argument into the second argument
 def cp(parts):
     '''
     makes a copy of the first argument into the second argument.
-
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
     '''
     params = parts.get("params") or []
     if len(params)<2:
@@ -352,14 +373,19 @@ def rm(parts):
     '''
     allows the user to delete a file/directory by passing its name.
 
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
+    flags:
+     -r : recursively deletes directory and its contents, will ask for confirmation.
+     -f : forces a recursive deletion on a directory and its contents
     '''
     params = parts.get("params",None) or []
     flags = parts.get("flags",None) or ""
 
     if not params:
         return {"output": None, "error": "rm: missing operand"}
+
+    # makes it easier to understand in Andrew's mind
+    flag_r = "r" in flags   
+    flag_f = "f" in flags
 
     try:
         for path in params:
@@ -369,22 +395,30 @@ def rm(parts):
 
             # recursive rm, with -r flag set
             elif os.path.isdir(path): # if the parameter is a directory, recursively delete
-                if 'r' in flags:
+                if flag_r:  
                     for files in os.listdir(path):
-                        shutil.rmtree(path) # removes entire "tree" of files
+                        #shutil.rmtree(path) 
+                        check = input(f"Are you sure you want to delete '{path}' and its contents? [y/n] ").strip().lower()
+                        if check == "n":
+                            continue     # continue with the program
+                        else:
+                            shutil.rmtree(path) # removes entire "tree" of files
+                else:
+                    if not flag_f:
+                        return {"output": None, "error": f"rm: cannot remove '{path}: is a directory"}
 
             # if the file/directory doesn't exits, print error message
             else: 
-                return {"output": None, "error": f"rm: cannot remove '{path}': No such file or directory"}
-
-            return {"output":None, "error":None}
-
-    except FileNotFoundError:
-        return {"output":None, "error":f"rm:{source}: There is no such file exixts"}
-    except PermissionError:
-        return{"output":None, "error":f"rm:permission denied"}
+                if not flag_f:
+                    return {"output": None, "error": f"rm: cannot remove '{path}': No such file or directory"}
+            
     except Exception as e:
-        return{"output":None, "error":f"rm:{str(e)}"} 
+        if not flag_f:
+            return{"output":None, "error":f"rm:{str(e)}"} 
+
+    return {"output":None, "error":None}
+
+
 
 '''
 cat:
@@ -392,7 +426,7 @@ allows the user to view the contents of a file
 '''
 def cat(parts):
     """
-    cat command: prints the contents of a file
+    allows the user to view the contents of a file
     """
     params = parts.get("params") or []
     if not params:
@@ -417,9 +451,6 @@ moves files/directories to a different location and renames files
 def mv(parts):
     '''
     moves files/directories to a different location and renames files.
-
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
     '''
     params = parts.get("params") or []
     if len(params)<2:
@@ -439,17 +470,21 @@ def mv(parts):
 
 
 
-'''changes the permissions of a file 
-what the numbers mean in command ex: 777 
-it grants permission access for a file 
-the [0] = owner
-[1] = group
-[2] = others 
-"0": "---", "1": "--x", "2": "-w-", "3": "-wx",
-"4": "r--", "5": "r-x", "6": "rw-", "7": "rwx"
+'''
+chmod
+- changes the permissions of a file
 '''
 def chmod(parts):
-
+    '''
+    changes the permissions of a file 
+    
+    first argument must be three integer values long
+    [0] = owner
+    [1] = group
+    [2] = others 
+    "0": "---", "1": "--x", "2": "-w-", "3": "-wx",
+    "4": "r--", "5": "r-x", "6": "rw-", "7": "rwx"
+    '''
     params = parts.get("params") or []
 
     if len(params) < 2:
@@ -481,14 +516,20 @@ def chmod(parts):
     except Exception as e:
         return {"output": None, "error": f"chmod: {str(e)}"}
 
+'''
+wc
+- counts the total number of words in a file
+'''
 def wc(parts):
     '''
     counts the total number of words in a file.
 
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
+    flags:
+    -l : counts the number of lines
+    -w : counts the number of words
     '''
     params = parts.get("params") or []
+    flags = parts.get("flags") or ""
 
     if not params:
         return{"output": None, "error": "wc:missing the command"}
@@ -496,10 +537,24 @@ def wc(parts):
     filename = params[0]
 
     try: 
-        with open(filename, "r", encoding="utf -8")as f:
+        with open(filename, "r", encoding="utf -8") as f:
             text = f.read()
-            word_count = len(text.split())
-            return{"output": f"word count of {filename} is: {word_count}", "error": None}
+            lines = text.splitlines()
+            words = text.split()
+
+        # list that handles the display
+        display = []
+
+        # flag handling
+        if "l" in flags:
+            display.append(f"Total lines: {len(lines)}")
+        if "w" in flags:
+            display.append(f"Total words: {len(lines)}")
+        if not flags:
+            display.append(f"Total words: {len(lines)}")
+
+        return {"output": "  ".join(output_parts), "error": None}
+
     except FileNotFoundError:
         return{"output":None, "error":f"wc:{filename}: no such file or file does not exists"}
     except PermissionError:
@@ -535,7 +590,9 @@ less:
 allows the user to only see snippets of files
 '''
 def less(parts):
-
+    '''
+    allows the user to only see snippets of files
+    '''
     params =parts.get("parts") or[] 
 
     if not params:
@@ -577,9 +634,6 @@ displays the first ten lines of a file
 def head(parts):
     '''
     displays the first ten lines of a file.
-
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
     '''
     # if params doesn't exist, defaults to an empty list
     params = parts.get("params") or []
@@ -630,8 +684,8 @@ def tail(parts):
     '''
     prints the data at the end of a file.
 
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
+    - defaults to ten lines
+    - if n is given as an argument, print n lines
     '''
     # if params doesn't exist, defaults to an empty list
     params = parts.get("params") or []
@@ -682,46 +736,65 @@ def grep(parts):
     '''
     runs a search on a file or through input.
 
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
+    flags:
+    -l : display the file name when matching
+    -i : when matching, ignore the case
     '''
     params = parts.get("params") or []
-    input_text = parts.get("input")
+    flags = parts.get("flags") or ""
 
+    # if there are more than two parameters, pass error
+    if len(params) < 2:
+        return {"output": None, "error": "grep: usage: grep [flags] pattern file(s)"}
     # if grep doesn't have parameters, error message
     if not params:
         return {"output": None, "error": "grep: missing search pattern"}
 
-    # the string to match
+    # the string to match, and search all files
     to_match = params[0]
-    output_lines = []
+    files = params[1:]
+    # if no file(s) give, print error
+    if not files:
+        return {"output": None, "error": "grep: no file specified"}
 
-    # if there is input text
-    if input_text:
-        # split the lines
-        lines_to_search = input_text.splitlines()
-        for line in lines_to_search:
-            # if the string to match is in a line, append it
-            if to_match in line:
-                output_lines.append(line)
+    # flag functions and initializations
+    ignore_case = 'i' in flags
+    list_files = 'l' in flags
 
-    elif len(params) > 1:
-        # grab the next parameter
-        filename = params[1]
+    # empty list to put the lines into
+    lines_match = []
+    # empty set to put files into
+    files_match = set()
+
+    for filename in files:
         try:
             with open(filename, "r", encoding = "utf-8") as f:
-                # for each line in the file
+                # check the lines
                 for line in f:
-                    # if the string matches in a line
-                    if to_match in line:
-                        # append to the output
-                        output_lines.append(line.rstrip("\n"))
-        except FileNotFoundError:
-            return {"output": None, "error": f"grep: {filename}: No such file or directory"}
-    else:
-        return {"output": None, "error": "grep: no input or file specified"}
+                    line_to_check = line
+                    pattern_to_check = to_match
+                    # if -i is set, ignore the case
+                    if ignore_case:
+                        line_to_check = line.lower()
+                        pattern_to_check = to_match.lower()
+                    # if the pattern is in the line, add the file to the match set
+                    if pattern_to_check in line_to_check:
+                        if list_files:
+                            files_match.add(filename)
+                            break
+                        else:
+                            lines_match.append(f"{filename}:{line.rstrip()}")
 
-    return {"output": "\n".join(output_lines), "error": None}
+        except FileNotFoundError:
+            return {"output": None, "error": f"grep: {filename}: No such file"}
+        except PermissionError:
+            return {"output": None, "error": f"grep: {filename}: Permission denied"}
+    # if the -l flag is set, display
+    if list_files:
+        return {"output": "\n".join(files_match), "error": None}
+    else:
+        return {"output": "\n".join(lines_match), "error": None}
+
     
 
 
@@ -763,8 +836,6 @@ def exclamation(user_input):
     if num < 1 or num > len(cmd_history):
         return None
     return cmd_history[num - 1]
-
-
 
 '''
 whoami: 
@@ -991,11 +1062,11 @@ if __name__ == "__main__":
             user_input = cmd.strip()
 
             # Executes the !x history command
-            if user_input:
-                list_num = exclamation(user_input)
+            history_cmd = exclamation(user_input)
+            if history_cmd:
                 # if a valid history command was found, use it as the user input
-                if list_num:
-                    user_input = list_num
+                user_input = history_cmd
+                print(user_input)   # prints the command before executing it
             
             # Add the command to history if it's not empty
             if user_input:
