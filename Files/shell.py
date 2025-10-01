@@ -58,8 +58,11 @@ def parse_cmd(cmd_input):
                 i += 2
             # separate the flag and add to "flags"
             elif part.startswith("-"):
-                parts["flags"] = part[1:]
-                i += 1
+                if parts["flags"]:
+                    parts["flags"] += part[1:]
+                else:
+                    parts["flags"] = part[1:]
+                #i += 1
             else:
                 # parameter handling
                 if parts["cmd"] is None:
@@ -429,19 +432,28 @@ def cat(parts):
     allows the user to view the contents of a file
     """
     params = parts.get("params") or []
+
+    # If this input is piped
+    if parts.get("input"):
+        return {"output": parts["input"], "error": None}
+
     if not params:
         return {"output": None, "error": "cat: missing file operand"}
     
-    filename = params[0]
+    #filename = params[0]
+    lines = []
     try:
         with open(filename, "r", encoding="utf-8") as f:
-            return {"output": f.read(), "error": None}
+            #return {"output": f.read(), "error": None}
+            lines.append(f.read())
     except FileNotFoundError:
         return {"output": None, "error": f"cat: {filename}: No such file"}
     except PermissionError:
         return {"output": None, "error": f"cat: {filename}: Permission denied"}
     except Exception as e:
         return {"output": None, "error": f"cat: {str(e)}"}
+
+    return {"output": "\n".join(lines), "error": None}
 
 
 '''
@@ -530,35 +542,59 @@ def wc(parts):
     '''
     params = parts.get("params") or []
     flags = parts.get("flags") or ""
+    text = ""
 
-    if not params:
-        return{"output": None, "error": "wc:missing the command"}
+    # If there is a filename, read it
+    if params:
+        filename = params[0]
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                text = f.read()
+        except FileNotFoundError:
+            return {"output": None, "error": f"wc:{filename}: No such file"}
+        except PermissionError:
+            return {"output": None, "error": f"wc:{filename}: Permission denied"}
+    
+    # If input from previous pipe exists, use it
+    elif parts.get("input"):
+        text = parts["input"]
+    
+    else:
+        return {"output": None, "error": "wc: missing the command or input"}
 
-    filename = params[0]
+    #output = ""
+    if "l" in flags:
+            output = str(len(text.splitlines()))
+    elif "w" in flags:
+            output = str(len(text.split()))
+    if not flags:
+            output = str(len(text.split()))
 
-    try: 
-        with open(filename, "r", encoding="utf -8") as f:
-            text = f.read()
-            lines = text.splitlines()
-            words = text.split()
+    return {"output": output, "error": None}
+
+    #try: 
+    #    with open(filename, "r", encoding="utf -8") as f:
+    #        text = f.read()
+    #        lines = text.splitlines()
+    #        words = text.split()
 
         # list that handles the display
-        display = []
+    #    display = []
 
         # flag handling
-        if "l" in flags:
-            display.append(f"Total lines: {len(lines)}")
-        if "w" in flags:
-            display.append(f"Total words: {len(lines)}")
-        if not flags:
-            display.append(f"Total words: {len(lines)}")
+    #    if "l" in flags:
+    #        display.append(f"Total lines: {len(lines)}")
+    #    if "w" in flags:
+    #        display.append(f"Total words: {len(lines)}")
+    #    if not flags:
+    #        display.append(f"Total words: {len(lines)}")
 
-        return {"output": "  ".join(output_parts), "error": None}
+    #    return {"output": "  ".join(output_parts), "error": None}
 
-    except FileNotFoundError:
-        return{"output":None, "error":f"wc:{filename}: no such file or file does not exists"}
-    except PermissionError:
-        return{"output":None, "error": f"wc:{filename}:Permission denied"}                
+    #except FileNotFoundError:
+    #    return{"output":None, "error":f"wc:{filename}: no such file or file does not exists"}
+    #except PermissionError:
+    #    return{"output":None, "error": f"wc:{filename}:Permission denied"}                
 
 '''sort:
 sorts the contents of a file(s) in ASCII order
@@ -568,22 +604,30 @@ def sort(parts):
     sorts the contents of a file(s) in ASCII order.
     '''
     params = parts.get("params") or []
-    if not params:
-        return{"output":None, "error": "sort:missing file operand"}
+    lines = []
+    #if not params:
+    #    return{"output":None, "error": "sort:missing file operand"}
 
-    filename = params[0]
+    # if input is piped
+    if parts.get("input"):
+        lines = parts["input"].splitlines()
+    elif params:
+        filename = params[0]
+        try:
+            with open(filename, "r", encoding ="utf-8") as f:
+                lines = f.read().splitlines()
+            #sorted_lines = sorted(line.strip() for line in lines)
+            #result ="\n".join(sorted_lines)
+            #return {"output": result, "error":None}
+        except FileNotFoundError:
+            return{"output":None, "error":f"sort: {filename}: no such file exists"}
+        except PermissionError:
+            return{"output":None, "error":f"sort:{filename}: permisiion denied"}
+    else:
+        return {"output": None, "error": "sort: missing file or input"}
 
-    try:
-        with open(filename, "r", encoding ="utf-8") as f:
-            lines = f.readlines()
-            sorted_lines = sorted(line.strip() for line in lines)
-            result ="\n".join(sorted_lines)
-            return {"output": result, "error":None}
-        
-    except FileNotFoundError:
-        return{"output":None, "error":f"sort: {filename}: no such file exists"}
-    except PermissionError:
-        return{"output":None, "error":f"sort:{filename}: permisiion denied"}
+    lines.sort()
+    return {"output": "\n".join(lines), "error": None}
 
 '''
 less:
@@ -742,6 +786,10 @@ def grep(parts):
     '''
     params = parts.get("params") or []
     flags = parts.get("flags") or ""
+    input_txt = parts.get("input")
+    # flag functions and initializations
+    ignore_case = 'i' in flags
+    list_files = 'l' in flags
 
     # if there are more than two parameters, pass error
     if len(params) < 2:
@@ -757,38 +805,53 @@ def grep(parts):
     if not files:
         return {"output": None, "error": "grep: no file specified"}
 
-    # flag functions and initializations
-    ignore_case = 'i' in flags
-    list_files = 'l' in flags
+    
 
     # empty list to put the lines into
     lines_match = []
     # empty set to put files into
     files_match = set()
 
-    for filename in files:
-        try:
-            with open(filename, "r", encoding = "utf-8") as f:
-                # check the lines
-                for line in f:
-                    line_to_check = line
-                    pattern_to_check = to_match
-                    # if -i is set, ignore the case
-                    if ignore_case:
-                        line_to_check = line.lower()
-                        pattern_to_check = to_match.lower()
-                    # if the pattern is in the line, add the file to the match set
-                    if pattern_to_check in line_to_check:
-                        if list_files:
-                            files_match.add(filename)
-                            break
-                        else:
-                            lines_match.append(f"{filename}:{line.rstrip()}")
+    # Reading from the files
+    if files:
+        for filename in files:
+            try:
+                with open(filename, "r", encoding = "utf-8") as f:
+                    # check the lines
+                    for line in f:
+                        line_to_check = line
+                        pattern_to_check = to_match
+                        # if -i is set, ignore the case
+                        if ignore_case:
+                            line_to_check = line.lower()
+                            pattern_to_check = to_match.lower()
+                        # if the pattern is in the line, add the file to the match set
+                        if pattern_to_check in line_to_check:
+                            if list_files:
+                                files_match.add(filename)
+                                break
+                            else:
+                                lines_match.append(f"{filename}:{line.rstrip()}")
 
-        except FileNotFoundError:
-            return {"output": None, "error": f"grep: {filename}: No such file"}
-        except PermissionError:
-            return {"output": None, "error": f"grep: {filename}: Permission denied"}
+            except FileNotFoundError:
+                return {"output": None, "error": f"grep: {filename}: No such file"}
+            except PermissionError:
+                return {"output": None, "error": f"grep: {filename}: Permission denied"}
+
+    elif input_txt:
+        for line in input_txt.splitlines():
+            line_to_check = line
+            pattern_to_check = to_match
+            if ignore_case:
+                line_to_check = line.lower()
+                pattern_to_check = to_match.lower()
+
+            if pattern_to_check in line_to_check:
+                lines_match.append(line.rstrip())
+
+    else:
+        return {"output": None, "error": "grep: no file specified and no input piped"}
+        
     # if the -l flag is set, display
     if list_files:
         return {"output": "\n".join(files_match), "error": None}
@@ -882,9 +945,9 @@ def piping(command_list):
         if cmd_dict.get("infile"):
             try:
                 with open(cmd_dict["infile"], "r", encoding = "utf-8") as f:
-                    cmd_dict["input"] == f.read()
+                    cmd_dict["input"] = f.read()
             except FileNotFoundError:
-                return {"output": None, "error": f"{cmd_dict['cmd']}: {cmd_dict['input_file']}: No such file"}
+                return {"output": None, "error": f"{cmd_dict['cmd']}: {cmd_dict['infile']}: No such file"}
 
         # piping the last output command
         if prev_output is not None:
@@ -896,20 +959,23 @@ def piping(command_list):
     # grab the outfile
     if cmd_dict.get("outfile"):
         # grab the output
-        if cmd_dict.get("output"):
+        #if cmd_dict.get("output"):
             # change to append mode
-            mode = "a"
-        else:
+        #    mode = "a"
+        #else:
             # change to write mode
-            mode = "w"
+        #    mode = "w"
         # open the output file
-        with open(cmd_dict["outfile"], mode, encoding = "utf-8") as f:
-            if result.get("output"):
-                # write to the output file
-                f.write(result["output"] + "\n")
-    else:
-        prev_output = result["output"]
-
+        mode = "a"
+        try:
+            with open(cmd_dict["outfile"], mode, encoding = "utf-8") as f:
+                if result.get("output"):
+                    # write to the output file
+                    f.write(result["output"] + "\n")
+        except Exception as e:
+            return {"output": None, "error": f"{cmd_dict['cmd']}: {str(e)}"}
+        
+    prev_output = result.get("output")
     results.append(result)
 
     # return the results
