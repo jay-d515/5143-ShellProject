@@ -29,7 +29,8 @@
 |   17    | _!x_                                                   |Andrew|  ✔     |
 |   18    | _chmod 777 somefile.txt_                               |Soma|     ✔   |
 |   19    | _sort bacon.txt_                                       |Soma|✔       |
-|   20    | _Command of your choice_                               |Andrew|✔        |
+|   20    | clean                                       |Jadyn|       |
+|   21    | _Command of your choice_                               |Andrew|✔        |
 | **_2_** | **_Piping_**                                           |Andrew|   ✔     |
 |         | Similar to (but open for me to choose command):        ||        |
 |         | _grep bacon bacon.txt \| wc -l_                        ||        |
@@ -38,7 +39,7 @@
 |         | _cat file1 file2 > file0_                              ||        |
 | **_4_** | **_General_**                                          |All Members|
 |         | Prompt line acts correct (cleans command etc.)         ||        |
-|         | Arrow keys work                                        ||        |
+|         | Arrow keys work                                        |Jadyn|        |
 |         | Items were not printed to the screen unnecessarily     ||        |
 |         | Too many messages (like successful .....) weren't used ||        |
 |         | Program did not crash or need restarted                ||        |
