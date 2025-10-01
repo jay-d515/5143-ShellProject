@@ -590,42 +590,71 @@ less:
 allows the user to only see snippets of files
 '''
 def less(parts):
-    '''
-    allows the user to only see snippets of files
-    '''
-    params =parts.get("parts") or[] 
+    """
+    less command: page through a file interactively.
+    Controls:
+      - Space : next page
+      - Enter : next line
+      - q     : quit back to shell
+    """
 
+    params = parts.get("params") or []
     if not params:
-        return {"output": None, "error":"less:missing file operand"}
-    
-    filename =params[0]
+        return {"output": None, "error": "less: missing file operand"}
+
+    filename = params[0]
 
     try:
-        with open(filename, "r", encoding="utf-8") as f:
+        with open(filename, "r", encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
+    except FileNotFoundError:
+        return {"output": None, "error": f"less: {filename}: No such file"}
+    except PermissionError:
+        return {"output": None, "error": f"less: {filename}: Permission denied"}
+    except Exception as e:
+        return {"output": None, "error": f"less: {str(e)}"}
 
-        #show file content 20 lines at a time
+    # get terminal size, fallback to 20 lines
+    try:
+        term_lines = shutil.get_terminal_size().lines
+        page_size = max(5, term_lines - 2)
+    except Exception:
         page_size = 20
 
-        for i in range(0,len(lines), page_size):
-            chunk = lines[i:i +page_size]
-            for line in chunk:
-                print(line.rstrip())  #it prints without extra newlines
+    i = 0
+    total = len(lines)
 
-            user_input =input("--for more-- (enter to continue, press'q' to quit)")
-            
-            if user_input.lower() == "q":
-                
-                break 
-        return {"output": None, "error": None}
-    
-    except FileNotFoundError:
-        return {"output": None, "error":f"cat:{filename} No such file"}
-    except PermissionError:
-        return{"output":None, "error":f"rm:permission denied"}
-    except Exception as e:
-        return{"output":None, "error":f"rm:{str(e)}"}
-    
+    while i < total:
+        end = min(i + page_size, total)
+        for ln in lines[i:end]:
+            print(ln.rstrip())
+
+        # show prompt
+        sys.stdout.write("-hit space for more\n")
+        sys.stdout.write("-hit q to end")
+        sys.stdout.flush()
+
+        # wait for one key
+        ch = getch()   
+
+        # clear the prompt
+        sys.stdout.write("\r" + " " * len("--More--") + "\r")
+        sys.stdout.flush()
+
+        if ch == "q":
+            break
+        elif ch == " ":  # space → next page
+            i = end
+        elif ch in ("\r", "\n"):  # hit enter to next line  next line
+            i = i + 1
+        elif ch == "\x03":  # Ctrl+C
+            raise KeyboardInterrupt
+        else:
+            # any other key = next page
+            i = end
+
+    return {"output": None, "error": None}
+   
 
 '''
 head:
@@ -1096,3 +1125,4 @@ if __name__ == "__main__":
             cmd = cmd[:cursor_position] + char + cmd[cursor_position:]
             cursor_position += 1
             redraw_prompt(cmd, cursor_position)
+
