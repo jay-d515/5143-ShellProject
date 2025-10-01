@@ -4,8 +4,6 @@ This file is about using getch to capture input and handle certain keys
 when the are pushed. The 'command_helper.py' was about parsing and calling functions.
 This file is about capturing the user input so that you can mimic shell behavior.
 
-Andrew's sources used - geeksforgeeks, chatgpt (redirection, piping())
-
 """
 import os
 import sys
@@ -1027,10 +1025,4 @@ if __name__ == "__main__":
             cmd = cmd[:cursor_position] + char + cmd[cursor_position:]
             cursor_position += 1
             redraw_prompt(cmd, cursor_position)
-
-
-
-
-
-
 
