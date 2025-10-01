@@ -19,10 +19,14 @@ from getch import Getch
 ##################################################################################
 ##################################################################################
 
-getch = Getch()  # create instance of our getch class
-#prompt = "$"  # set default prompt
-# global variable to store current directory
-current_directory = "/"
+# create instance of our getch class
+getch = Getch()
+# a list to store the command history
+cmd_history = []
+# index for navigating history
+history_index = -1
+# current position of the cursor
+cursor_position = 0
 
 '''
 parse_cmd:
@@ -787,11 +791,13 @@ def cls(parts=None):
     '''
     clears the terminal screen.
     '''
+
+    # ANSI escape sequence to clear the screen and move the cursor to the top-left corner
     sys.stdout.write("\033[2J\033[H")
     sys.stdout.flush()
 
     # prints an empty command prompt after clearing the terminal
-    print_cmd("")
+    redraw_prompt("", 0)
     return {"output": None, "error": None}
 
 '''
@@ -844,7 +850,7 @@ def piping(command_list):
         return {"output": None, "error": None}
 
 '''
-execute_command(command_dict)
+execute_command
 executes the command given on the command dictionary 
 '''
 def execute_command(command_dict):
@@ -888,105 +894,139 @@ def execute_command(command_dict):
     else: # if command does not exist
         return {"output": None, "error": f"Command '{cmd_name}' not found"}
 
+'''
+redraw_prompt
+redraws the current prompt and command, placing the cursor at the correct position
+'''
+def redraw_prompt(cmd, cursor_position):
+    '''
+    redraws the current prompt and command, placing the cursor at the correct position
+    '''
+    # clears the current line
+    sys.stdout.write("\r\033[K")
+
+    try:
+        cwd = os.getcwd()
+
+    except:
+        cwd = "/"
+    # prints the prompt with the current working directory and command
+    sys.stdout.write(f"{cwd}$ {cmd}")
+    sys.stdout.flush()
+
+    # moves the cursor to the correct position
+    prompt_length = len(f"{cwd}$ ")
+    move = prompt_length + cursor_position
+    sys.stdout.write(f"\r\033[{move+1}C")
+    sys.stdout.flush()
 
 
 if __name__ == "__main__":
-    cmd_list = parse_cmd("ls Assignments -lah | grep '.py' | wc -l > output")
-    print(cmd_list)
-    cmd = ""  # empty cmd variable
+    # initial command is empty
+    cmd = ""
+    # curson position starts at 0
+    cursor_position = 0
+    # print the initial command prompt
+    redraw_prompt(cmd, cursor_position)
 
-    cmd_history = []    # list containing commands previously used
+    # loop forever
+    while True:  
+        # grab a character from the user
+        char = getch()  
 
-    print_cmd(cmd)  # print to terminal
-
-    while True:  # loop forever
-
-        char = getch()  # read a character (but don't print)
-
-        if char == "\x03" or cmd == "exit":  # ctrl-c
+        # if ctrl-c or exit command is pressed, exit the program
+        if char == "\x03" or cmd == "exit":
             raise SystemExit("\nBye.")
 
-        elif char == "\x7f":  # back space pressed
-            cmd = cmd[:-1]
-            print_cmd(cmd)
+        # if backspace is pressed, remove the last character from cmd
+        elif char == "\x7f":
+            if cursor_position > 0:
+                cmd = cmd[:cursor_position - 1] + cmd[cursor_position:]
+                cursor_position -= 1
+            redraw_prompt(cmd, cursor_position)
 
-        elif char in "\x1b":  # arrow key pressed
-            null = getch()  # waste a character
-            direction = getch()  # grab the direction
+        # identify arrow keys and handle accordingly
+        elif char in "\x1b":
+            # detect the full excape sequence
+            null = getch()
+            # grab the direction character
+            direction = getch()
 
-            if direction in "A":  # up arrow pressed
-                # get the PREVIOUS command from your history (if there is one)
-                # prints out 'up' then erases it (just to show something)
-                cmd += "\u2191"
-                print_cmd(cmd)
-                sleep(0.3)
-                # cmd = cmd[:-1]
+            # if the up arrow is pressed
+            if direction in "A":
+                # get the previous command from history (if there is one)
+                if history_index > 0:
+                    history_index -= 1
+                    cmd = cmd_history[history_index]
+                    # set the cursor position to the end of the command line
+                    cursor_position = len(cmd)
 
-            if direction in "B":  # down arrow pressed
-                # get the NEXT command from history (if there is one)
-                # prints out 'down' then erases it (just to show something)
-                cmd += "\u2193"
-                print_cmd(cmd)
-                sleep(0.3)
-                # cmd = cmd[:-1]
+            # if the down arrow is pressed
+            elif direction in "B":
+                # get the next command from history (if there is one)
+                if history_index < len(cmd_history) - 1:
+                    history_index += 1
+                    cmd = cmd_history[history_index]
+                # if there is no next command, clear the command line
+                else:
+                    history_index = len(cmd_history)
+                    cmd = ""
+                # set the cursor position to the end of the command line
+                cursor_position = len(cmd)
+            # if the right arrow is pressed
+            elif direction == "C":
+                # move the cursor right, if not at the end of the command
+                if cursor_position < len(cmd):
+                    cursor_position += 1
+            # if the left arrow is pressed
+            elif direction == "D":
+                # move the cursor left, if not at the beginning of the command
+                if cursor_position > 0:
+                    cursor_position -= 1
+            
+            redraw_prompt(cmd, cursor_position)
 
-            if direction in "C":  # right arrow pressed
-                # move the cursor to the right on your command prompt line
-                # prints out 'right' then erases it (just to show something)
-                cmd += "\u2192"
-                print_cmd(cmd)
-                sleep(0.3)
-                # cmd = cmd[:-1]
-
-            if direction in "D":  # left arrow pressed
-                # moves the cursor to the left on your command prompt line
-                # prints out 'left' then erases it (just to show something)
-                cmd += "\u2190"
-                print_cmd(cmd)
-                sleep(0.3)
-                # cmd = cmd[:-1]
-
-            print_cmd(cmd)  # print the command (again)
-
-        elif char in "\r":  # return pressed
-            # Save the current command before processing
+        # if enter is pressed, execute the command
+        elif char in "\r":
+            # move to a new line
+            sys.stdout.write("\n")
             user_input = cmd.strip()
 
-            # Executes the !x command
+            # Executes the !x history command
             if user_input:
                 list_num = exclamation(user_input)
+                # if a valid history command was found, use it as the user input
                 if list_num:
                     user_input = list_num
+            
+            # Add the command to history if it's not empty
+            if user_input:
+                # avoid duplicate consecutive entries
+                cmd_history.append(user_input)
+                # set the history index to the end of the list
+                history_index = len(cmd_history)
 
-            # Save command entered to history list
-            cmd_history.append(user_input)
-
-            if user_input:  # Only process if there's actually a command
-                # Show execution message
-                cmd = "Executing command...."
-                print_cmd(cmd)
-                sleep(0.5)
-                
-                # Parse the command into structured format
+                # parse the command into a list of commands (for piping)
                 command_list = parse_cmd(user_input)
-                
-                # Handles piping, when it didn't before
                 if command_list:
+                    # execute the command(s)
                     result = piping(command_list)
-                    
-                    # Display the result
-                    print()  # New line after command
+                    # print the output and error (if any)
                     if result["output"]:
                         print(result["output"])
                     if result["error"]:
                         print(f"Error: {result['error']}")
-
-            cmd = ""  # reset command to nothing (since we just executed it)
-            print_cmd(cmd)  # now print empty cmd prompt
+            
+            # reset the command line and cursor position
+            cmd = ""
+            cursor_position = 0
+            redraw_prompt(cmd, cursor_position)
+        # if a regular character is pressed
         else:
-            cmd += char  # add typed character to our "cmd"
-
-            print_cmd(cmd)  # print the cmd out
+            # insert the character at the current cursor position
+            cmd = cmd[:cursor_position] + char + cmd[cursor_position:]
+            cursor_position += 1
+            redraw_prompt(cmd, cursor_position)
 
 
 
