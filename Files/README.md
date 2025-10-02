@@ -29,7 +29,7 @@
 |   17    | _!x_                                                   |Andrew|  ✔     |
 |   18    | _chmod 777 somefile.txt_                               |Soma|     ✔   |
 |   19    | _sort bacon.txt_                                       |Soma|✔       |
-|   20    | clean                                       |Jadyn|       |
+|   20    | clean                                       |Jadyn|     ✔  |
 |   21    | _Command of your choice_                               |Andrew|✔        |
 | **_2_** | **_Piping_**                                           |Andrew|   ✔     |
 |         | Similar to (but open for me to choose command):        ||        |
