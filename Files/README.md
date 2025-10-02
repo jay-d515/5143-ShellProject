@@ -7,6 +7,15 @@
 
 ## Overview
 ##### In this project, we implemented a basic shell using Python. Below, we have listed the assignment rubric which includes who worked on each command, and their completion status.
+
+## Instructions
+#### To run this shell, you must execute the following:
+#### 1. Ensure access to the repository
+#### 2. Switch over to the Files directory
+#### 3. Type the command "python shell.py"
+#### 
+#### Now that the program is running, similarly use it to navigate the emulated terminal!
+
 |    #    | Item                                                   |  Who Worked on it  | Done? |
 | :-----: | ------------------------------------------------------ | :----------------: | :---: |
 | **_1_** | **_Commands_**                                         ||        |
@@ -43,19 +52,6 @@
 |         | Items were not printed to the screen unnecessarily     ||        |
 |         | Too many messages (like successful .....) weren't used ||        |
 |         | Program did not crash or need restarted                ||        |
-
-## Instructions
-#### To run this shell, you must execute the following:
-#### 1. Ensure access to the repository
-#### 2. Switch over to the Files directory
-#### 3. Type the command "python shell.py"
-#### 
-#### Now that the program is running, similarly use it to navigate the emulated terminal!
-
-## Incomplete Features
-#### In this project, we had a couple of incomplete features.
-#### 1. Not all commands have their every single flag running
-#### 2. Help command does not print the actual command, but rather displays its associated docstring
 
 ## References
 #### Our references used were as follows:
