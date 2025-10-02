@@ -16,6 +16,7 @@
 #### 
 #### Now that the program is running, similarly use it to navigate the emulated terminal!
 
+## Commands
 |**Command**|**Flags/Parameters**|**Description**|**Author**|
 |-------|------------------------|---------------|----------|
 |`ls`|`-a`|Lists all files, including hidden ones|Jadyn|
