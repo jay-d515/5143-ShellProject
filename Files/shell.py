@@ -175,9 +175,9 @@ def ls(parts):
             output = "\n".join(output_lines)
         else:
             # short format with just file names
-            ouput = "  ".join(files)
+            output = "  ".join(files)
 
-        return {"output":ouput, "error":None}
+        return {"output": output, "error":None}
 
     except FileNotFoundError:
         return {"output": None, "error": f"ls: cannot access '{directory}': No such file or directory"}
