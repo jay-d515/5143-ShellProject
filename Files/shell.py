@@ -429,31 +429,22 @@ allows the user to view the contents of a file
 '''
 def cat(parts):
     """
-    allows the user to view the contents of a file
+    cat command: prints the contents of a file
     """
     params = parts.get("params") or []
-
-    # If this input is piped
-    if parts.get("input"):
-        return {"output": parts["input"], "error": None}
-
     if not params:
         return {"output": None, "error": "cat: missing file operand"}
     
-    #filename = params[0]
-    lines = []
+    filename = params[0]
     try:
         with open(filename, "r", encoding="utf-8") as f:
-            #return {"output": f.read(), "error": None}
-            lines.append(f.read())
+            return {"output": f.read(), "error": None}
     except FileNotFoundError:
         return {"output": None, "error": f"cat: {filename}: No such file"}
     except PermissionError:
         return {"output": None, "error": f"cat: {filename}: Permission denied"}
     except Exception as e:
         return {"output": None, "error": f"cat: {str(e)}"}
-
-    return {"output": "\n".join(lines), "error": None}
 
 
 '''
@@ -1188,4 +1179,5 @@ if __name__ == "__main__":
             cmd = cmd[:cursor_position] + char + cmd[cursor_position:]
             cursor_position += 1
             redraw_prompt(cmd, cursor_position)
+
 
