@@ -948,7 +948,8 @@ def execute_command(command_dict):
         'cp': cp,
         'grep': grep,
         'help': help,
-        'cls': cls
+        'cls': cls,
+        'chmod': chmod
         # etc.ex
     }
 
