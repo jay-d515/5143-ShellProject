@@ -435,27 +435,27 @@ mv:
 moves files/directories to a different location and renames files
 '''
 def mv(parts):
-    '''
-    moves files/directories to a different location and renames files.
-
-    input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
-    output dict: {"output":string,"error":string}
-    '''
+    
     params = parts.get("params") or []
-    if len(params)<2:
-        return {"output":None, "error":"mv: missing file operation"}
+    if len(params) < 2:
+        return {"output": None, "error": "mv: missing file operand"}
 
-    source, dest = params[0], params[1]
+    src, dest = params[0], params[1]
 
     try:
-        os.rename(source, dest)
-        return {"output":None, "error":None}
+        # If target is a directory, append the filename
+        if os.path.isdir(dest):
+            dest = os.path.join(dest, os.path.basename(src))
+
+        shutil.move(src, dest)
+        return {"output": f"Moved '{src}' to '{dest}'", "error": None}
+
     except FileNotFoundError:
-        return {"output":None, "error":f"mv:{source}: There is no such file exixts"}
+        return {"output": None, "error": f"mv: cannot stat '{src}': No such file or directory"}
     except PermissionError:
-        return{"output":None, "error":f"mv:permission denied"}        
+        return {"output": None, "error": f"mv: cannot move '{src}': Permission denied"}
     except Exception as e:
-        return{"output":None, "error":f"mv:{str(e)}"}        
+        return {"output": None, "error": f"mv: {str(e)}"}
 
 
 
@@ -1097,4 +1097,5 @@ if __name__ == "__main__":
             cmd = cmd[:cursor_position] + char + cmd[cursor_position:]
             cursor_position += 1
             redraw_prompt(cmd, cursor_position)
+
 
