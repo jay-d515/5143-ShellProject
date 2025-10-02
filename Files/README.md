@@ -16,6 +16,7 @@
 #### 
 #### Now that the program is running, similarly use it to navigate the emulated terminal!
 
+## Commands
 |    #    | Item                                                   |  Who Worked on it  | Done? |
 | :-----: | ------------------------------------------------------ | :----------------: | :---: |
 | **_1_** | **_Commands_**                                         ||        |
