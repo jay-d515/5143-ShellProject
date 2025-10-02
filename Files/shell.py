@@ -752,13 +752,16 @@ def grep(parts):
 
     ignore_case = "i" in flags
     list_files = "l" in flags
+    count_only = "c" in flags
 
     lines_match = []
     files_match = set()
+    count_match = 0
 
     # search in files, if applicable
     for filename in files:
         try:
+            count = 0
             # open file
             with open(filename, "r", encoding="utf-8") as f:
                 for line in f:
@@ -775,8 +778,13 @@ def grep(parts):
                         if list_files:
                             files_match.add(filename)
                             break
+                            # if "c" in flags
+                        elif count_only:
+                            count += 1
                         else:
                             lines_match.append(f"{filename}:{line.rstrip()}")
+            if count_only:
+                lines_match.append(f"{filename}:{count}")
         except FileNotFoundError:
             return {"output": None, "error": f"grep: {filename}: No such file"}
         except PermissionError:
@@ -792,7 +800,13 @@ def grep(parts):
                 pattern_to_check = to_match.lower()
 
             if pattern_to_check in line_to_check:
-                lines_match.append(line.rstrip())
+                if count_only:
+                    count += 1
+                else:
+                    lines_match.append(line.rstrip())
+
+        if count_only:
+            lines_match.append(str(count))
 
     # display output
     if list_files:
@@ -1097,5 +1111,6 @@ if __name__ == "__main__":
             cmd = cmd[:cursor_position] + char + cmd[cursor_position:]
             cursor_position += 1
             redraw_prompt(cmd, cursor_position)
+
 
 
