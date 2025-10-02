@@ -54,9 +54,8 @@
 
 ## Incomplete Features
 #### In this project, we had a couple of incomplete features.
-#### 1. Not all commands have their appropriate flags running
-#### 2. Arrow keys do not navigate to previous commands, and vice versa
-#### 3. Help command does not print the actual command, but rather displays its associated docstring
+#### 1. Not all commands have their every single flag running
+#### 2. Help command does not print the actual command, but rather displays its associated docstring
 
 ## References
 #### Our references used were as follows:
