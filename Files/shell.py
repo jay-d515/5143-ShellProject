@@ -172,7 +172,7 @@ def ls(parts):
                     output_lines.append(f"{file_type}rwxr-xr-x {size_str:>8} {file}")
                 except OSError:
                     output_lines.append(f"?--------- {'?':>8}  {file}")
-            ouput = "\n".join(output_lines)
+            output = "\n".join(output_lines)
         else:
             # short format with just file names
             ouput = "  ".join(files)
