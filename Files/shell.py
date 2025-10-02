@@ -502,11 +502,10 @@ def chmod(parts):
     if len(params) < 2:
         return{"output":None, "error": "chmod:missing operand \n usage: chmod <mode> <filename>"}
     
-
     mode_str, filename = params[0], params[1]
 
     try:
-        #this convert  the strings like "777" into octal int (example 0o777)
+        #this convert the strings like "777" into octal int (example 0o777)
 
         mode = int(mode_str, 8)
 
@@ -518,13 +517,10 @@ def chmod(parts):
 
     except ValueError:
         return {"ouput":None, "error": f"chmod invalid mode:'{mode_str}'", "error":None}
-
     except FileNotFoundError:
         return{"output":None, "error":f"chmod: there no such file '{filename}'"}
-
     except PermissionError:
         return {"output": None, "error": f"chmod: changing permissions of '{filename}': Permission denied"}
-
     except Exception as e:
         return {"output": None, "error": f"chmod: {str(e)}"}
 
@@ -1043,7 +1039,8 @@ def execute_command(command_dict):
         'cp': cp,
         'grep': grep,
         'help': help,
-        'cls': cls
+        'cls': cls,
+        'chmod': chmod
         # etc.ex
     }
 
