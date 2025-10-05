@@ -110,44 +110,43 @@ def help(parts, command_map=None):
     
 '''
 ls
-- lists the entire working directory
+lists the entire working directory.
+
+flags:
+-a : shows all files, indluding hidden ones
+-l : log listing (permissions, size, and name)
+-h: human readable sizes (KB, MB, GB)
 '''
 def ls(parts):
     '''
     input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
     output dict: {"output":string,"error":string}
     '''
-    input = parts.get("input",None)
-    flags = parts.get("flags",None) or ""
-    params = parts.get("params",None) or []
+    input = parts.get("input", None)
+    flags = parts.get("flags", None) or ""
+    params = parts.get("params", None) or []
 
     # determine which directory to list
     if len(params) > 0:
         # use a specified directory
         directory = params[0]
     else:
-        # use the current directory
+        # default to the current directory
         directory = "."
 
     try:
-        # get a list of files in the current directory
+        # get the list of files in the directory
         files = os.listdir(directory)
 
-        # handles -a flag
-        if 'a' in flags:
-            # show all files, including hidden ones
-            files = os.listdir(directory)
-        else:
-            # hide files that start with a dot
-            files = os.listdir(directory)
-            files = [f for f in files if not f.startswith('.')]
+        # handles the -a flag (show all files, including hidden ones)
+        if "a" not in flags:
+            files = [f for f in files if not f.startswith(".")]
 
         # sorts the files alphabetically
         files.sort()
 
-        # handles -l flag
-        if 'l' in flags:
-            # long format with file details
+        # handles the -l flag (long listing format)
+        if "l" in flags:
             output_lines = []
             for file in files:
                 filepath = os.path.join(directory, file)
@@ -155,7 +154,11 @@ def ls(parts):
                     stat_info = os.stat(filepath)
                     size = stat_info.st_size
 
-                    if 'h' in flags:
+                    # use actual file permissions
+                    permissions = stat.filemode(stat_info.st_mode)
+
+                    # handles the -h flag (human readable sizes)
+                    if "h" in flags:
                         if size >= 1024**3:
                             size_str = f"{size/1024**3:.1f}G"
                         elif size >= 1024**2:
@@ -167,24 +170,26 @@ def ls(parts):
                     else:
                         size_str = str(size)
 
-                    # deternmine if it is a directory or file
-                    file_type = "d" if os.path.isdir(filepath) else "-"
-                    output_lines.append(f"{file_type}rwxr-xr-x {size_str:>8} {file}")
+                    output_lines.append(f"{permissions} {size_str:>8} {file}")
+
                 except OSError:
-                    output_lines.append(f"?--------- {'?':>8}  {file}")
+                    output_lines.append(f"?--------- {'?':>8} {file}")
+            
             output = "\n".join(output_lines)
+
         else:
-            # short format with just file names
+            # simple listing with just filenames
             output = "  ".join(files)
-
-        return {"output": output, "error":None}
-
+        
+        return {"output": output, "error": None}
+    
     except FileNotFoundError:
         return {"output": None, "error": f"ls: cannot access '{directory}': No such file or directory"}
     except PermissionError:
         return {"output": None, "error": f"ls: cannot open directory '{directory}': Permission denied"}
     except Exception as e:
         return {"output": None, "error": f"ls: {str(e)}"}
+
 '''
 exit:
 exit the shell
