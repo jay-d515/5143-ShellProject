@@ -19,40 +19,59 @@
 ## Commands
 |    #    | Item                                                   |  Who Worked on it  | Done? |
 | :-----: | ------------------------------------------------------ | :----------------: | :---: |
-| **_1_** | **_Commands_**                                         ||        |
-|    1    | _ls -lah_                                              |Jadyn|✔      |
-|    2    | _mkdir bananas_                                        |Andrew|✔       |
-|    3    | _cd bananas_                                           |Jadyn|✔        |
-|    4    | _cd .._                                                |Jadyn|✔        |
-|    5    | _cd ~_                                                 |Jadyn|✔        |
-|    6    | _pwd_                                                  |Jadyn|✔      |
-|    7    | _mv somefile.txt bananas_                              |Soma| ✔       |
-|    8    | _cp bananas/somefile.txt somefile/otherfile.txt_       |Andrew|✔      |
-|    9    | _rm -rf bananas_                                       |Andrew| ✔      |
-|   10    | _cat file(s)_                                          |Soma|  ✔      |
-|   11    | _less somefile_                                        |Soma|   ✔     |
-|   12    | _head somefile -n 10_                                  |Jadyn|✔        |
-|   13    | _tail somefile -n 10_                                  |Jadyn|✔        |
-|   14    | _grep -lic bacon bacon.txt , ham.txt_                  |Andrew|   ✔    |
-|   15    | _wc -w bacon.txt_                                      |Soma| ✔       |
-|   16    | _history_                                              |Andrew|  ✔     |
-|   17    | _!x_                                                   |Andrew|  ✔     |
-|   18    | _chmod 777 somefile.txt_                               |Soma|     ✔   |
-|   19    | _sort bacon.txt_                                       |Soma|✔       |
-|   20    | clean                                                  |Jadyn|     ✔  |
-|   21    | _Command of your choice_                               |Andrew|✔        |
-| **_2_** | **_Piping_**                                           |Andrew|   ✔     |
-|         | Similar to (but open for me to choose command):        ||        |
-|         | _grep bacon bacon.txt \| wc -l_                        ||        |
-| **_3_** | **_Redirection_**                                      |Andrew|   ✔     |
-|         | Similar to (but open for me to choose):                ||        |
-|         | _cat file1 file2 > file0_                              ||        |
+| **_1_** | **_Commands_**                                         |||
+|    1    | _ls -lah_                                              |Jadyn|✔|
+|    2    | _mkdir bananas_                                        |Andrew|✔|
+|    3    | _cd bananas_                                           |Jadyn|✔|
+|    4    | _cd .._                                                |Jadyn|✔|
+|    5    | _cd ~_                                                 |Jadyn|✔|
+|    6    | _pwd_                                                  |Jadyn|✔|
+|    7    | _mv somefile.txt bananas_                              |Soma|✔|
+|    8    | _cp bananas/somefile.txt somefile/otherfile.txt_       |Andrew|✔|
+|    9    | _rm -rf bananas_                                       |Andrew|✔|
+|   10    | _cat file(s)_                                          |Soma|✔|
+|   11    | _less somefile_                                        |Soma|✔|
+|   12    | _head somefile -n 10_                                  |Jadyn|✔|
+|   13    | _tail somefile -n 10_                                  |Jadyn|✔|
+|   14    | _grep -lic bacon bacon.txt , ham.txt_                  |Andrew|✔|
+|   15    | _wc -w bacon.txt_                                      |Soma|✔|
+|   16    | _history_                                              |Andrew|✔|
+|   17    | _!x_                                                   |Andrew|✔|
+|   18    | _chmod 777 somefile.txt_                               |Soma|✔|
+|   19    | _sort bacon.txt_                                       |Soma|✔|
+|   20    | _clean_                                                |Jadyn|✔|
+|   21    | _Command of your choice_                               |Andrew|✔|
+| **_2_** | **_Piping_**                                           |Andrew|✔|
+|         | Similar to (but open for me to choose command):        |||
+|         | _grep bacon bacon.txt \| wc -l_                        |||
+| **_3_** | **_Redirection_**                                      |Andrew|✔|
+|         | Similar to (but open for me to choose):                |||
+|         | _cat file1 file2 > file0_                              |||
 | **_4_** | **_General_**                                          |All Members|✔|
-|         | Prompt line acts correct (cleans command etc.)         ||        |
-|         | Arrow keys work                                        |Jadyn|✔        |
-|         | Items were not printed to the screen unnecessarily     ||        |
-|         | Too many messages (like successful .....) weren't used ||        |
-|         | Program did not crash or need restarted                ||        |
+|         | Prompt line acts correct (cleans command etc.)         |||
+|         | Arrow keys work                                        |Jadyn|✔|
+|         | Items were not printed to the screen unnecessarily     |||
+|         | Too many messages (like successful .....) weren't used |||
+|         | Program did not crash or need restarted                |||
+
+# Final Thoughts
+### Highs and Lows
+#### Jadyn
+##### A low for me was realizing that I hardcoded the permissions instead of coding them to work simultaneously with the chmod. I coded the ls command before chmod and didn't take into account the changes that I needed to make to my code, until we were presenting in class. I'm glad I was able to get it fixed up and working. My high for this project was actually getting it done, and getting good feedback. I always have low expectations for myself when it comes to big projects like this, so I'm really proud of what I was able to accomplish.
+#### Andrew
+#### Soma
+
+### What was good and bad?
+#### Jadyn
+##### I'm fairly new to working with both Python and Codespaces, so it was really annoying trying to navigate the usage of both throughout this project. Sometimes, me and the rest of the group would be working on the project simultaneously, and it would cause us to get merge errors when we were committing changes. Although I have used GitHub before, I wasn't the most familiar with all of the features, so it took some time to get around the errors I got while merging or committing. I think the good thing about working on this project was learning how to work with a group of people on a program, and how to create a tool that is so prevelent in both the industry and day to day life. In the past, I have not had the best time working with groups, so this was probably the first time I haven't had to do a majority of the work. I appreciated them so much for taking the time to get things done.
+#### Andrew
+#### Soma
+
+### What would we do differently?
+#### Jadyn
+##### If I were to do this project again, I would definitely make sure we managed our work with the amount of time we had. I'm a big procrastinator on bigger assignments like this, and even though I got my commands done on time, I could have spaced the work I did over those weeks we had. I think if I would have managed my time better, I could have possibly added more details to our shell that would make it more unique when compared to our peers.
+#### Andrew
+#### Soma
 
 ## References
 #### Our references used were as follows:
