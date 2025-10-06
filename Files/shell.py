@@ -418,7 +418,7 @@ def rm(parts):
 cat:
 allows the user to view the contents of a file
 '''
-def cat(details):
+def cat(parts):
     '''
     Displays or cats file contents or piped input, with optional formatting.
 
@@ -431,11 +431,11 @@ def cat(details):
     Input: dict with keys: "input" (str), "cmd" (str), "params" (list), "flags" (str)
     Output: dict with keys: "output" (str), "error" (str)
     '''
-    arguments = details.get("params", [])
-    options = details.get("flags", "")
-    piped_data = details.get("input")
-    output_file = details.get("outfile")
-    append_mode = details.get("append", False)
+    arguments = parts.get("params", [])
+    options = parts.get("flags", "")
+    piped_data = parts.get("input")
+    output_file = parts.get("outfile")
+    append_mode = parts.get("append", False)
 
     # Determine input sources
     if piped_data is not None:
@@ -602,7 +602,7 @@ def chmod(parts):
 wc
 counts the total number of words/lines in a file or piped input
 '''
-def wc(details):
+def wc(parts):
     '''
     Counts lines, words, bytes, and/or characters in files or piped input.
 
@@ -612,12 +612,12 @@ def wc(details):
     -c : count bytes
     -m : count characters (overrides -c if specified)
 
-    Input: dict with keys: "input" (str), "cmd" (str), "params" (list), "flags" (str)
+    Input: dict with keys: {"input" (str), "cmd" (str), "params" (list), "flags" (str)}
     Output: dict with keys: "output" (str), "error" (str)
     '''
-    arguments = details.get("params", [])
-    options = details.get("flags", "")
-    piped_data = details.get("input")
+    arguments = parts.get("params", [])
+    options = parts.get("flags", "")
+    piped_data = parts.get("input")
 
     # Decide what to count based on flags or default behavior
     show_lines = "l" in options or not options
@@ -727,39 +727,85 @@ less:
 allows the user to only see snippets of files
 '''
 def less(parts):
+    '''
+    Shows a file's contents page by page, with optional line count and line numbers.
 
-    params =parts.get("params") or[] 
+    Flags:
+    -N : show line numbers
+    '''
+    params = parts.get("params", [])
+    flags = parts.get("flags", "")
+    show_numbers = "N" in flags
 
+    # Check if any parameters are provided
     if not params:
-        return {"output": None, "error":"less:missing file operand"}
-    
-    filename =params[0]
+        return {"output": None, "error": "less: No file given"}
+
+    # Default to 20 lines per page
+    lines_per_page = 10
+    file_name = None
+
+    # Find file name and line count
+    for param in params:
+        if param.isdigit():
+            lines_per_page = int(param)  # Set custom line count
+            if lines_per_page <= 0:
+                return {"output": None, "error": "less: Line count must be positive"}
+        else:
+            file_name = param  # Set file name
+
+    if not file_name:
+        return {"output": None, "error": "less: No file given"}
 
     try:
-        with open(filename, "r", encoding="utf-8") as f:
-            lines = f.readlines()
+        # Read the file
+        with open(file_name, "r", encoding="utf-8") as file:
+            lines = file.readlines()
 
-        #show file content 20 lines at a time
-        page_size = 20
+        # Start at the first line
+        start_line = 0
 
-        for i in range(0,len(lines), page_size):
-            chunk = lines[i:i +page_size]
-            for line in chunk:
-                print(line.rstrip())  #it prints without extra newlines
+        # Show file page by page
+        while start_line < len(lines):
+            # Get the next chunk of lines
+            end_line = min(start_line + lines_per_page, len(lines))
+            for i, line in enumerate(lines[start_line:end_line], start=start_line + 1):
+                if show_numbers:
+                    print(f"{i:4} {line.rstrip()}")  # Show line number
+                else:
+                    print(line.rstrip())  # Show line without extra newline
 
-            user_input =input("--for more-- (enter to continue, press'q' to quit) ")
-            
-            if user_input.lower() == "q":
-                
-                break 
+            # Stop if we’ve shown all lines
+            if end_line >= len(lines):
+                break
+
+            # Show prompt and wait for user input
+            sys.stdout.write("--More-- (press space to continue, q to quit)")
+            sys.stdout.flush()
+
+            # Use getch to get a single key
+            from getch import Getch
+            key = Getch()()
+
+            # Clear the prompt
+            sys.stdout.write("\r" + " " * 40 + "\r")
+            sys.stdout.flush()
+
+            # Handle user input
+            if key.lower() == "q":
+                return {"output": None, "error": None}
+            if key in (" ", "\r"):
+                start_line += lines_per_page  # Move to next page
+            # Ignore other keys and loop again
+
         return {"output": None, "error": None}
-    
+
     except FileNotFoundError:
-        return {"output": None, "error":f"less: {filename} No such file"}
+        return {"output": None, "error": f"less: {file_name}: File not found"}
     except PermissionError:
-        return{"output":None, "error":f"less: permission denied"}
+        return {"output": None, "error": f"less: {file_name}: Access denied"}
     except Exception as e:
-        return{"output":None, "error":f"less: {str(e)}"}
+        return {"output": None, "error": f"less: Error: {str(e)}"}
     
 
 '''
@@ -1250,6 +1296,7 @@ if __name__ == "__main__":
             cmd = cmd[:cursor_position] + char + cmd[cursor_position:]
             cursor_position += 1
             redraw_prompt(cmd, cursor_position)
+
 
 
 
