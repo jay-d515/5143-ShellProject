@@ -418,24 +418,105 @@ def rm(parts):
 cat:
 allows the user to view the contents of a file
 '''
-def cat(parts):
-    """
-    prints the contents of a file
-    """
-    params = parts.get("params") or []
-    if not params:
-        return {"output": None, "error": "cat: missing file operand"}
-    
-    filename = params[0]
-    try:
-        with open(filename, "r", encoding="utf-8") as f:
-            return {"output": f.read(), "error": None}
-    except FileNotFoundError:
-        return {"output": None, "error": f"cat: {filename}: No such file"}
-    except PermissionError:
-        return {"output": None, "error": f"cat: {filename}: Permission denied"}
-    except Exception as e:
-        return {"output": None, "error": f"cat: {str(e)}"}
+def cat(details):
+    '''
+    Displays or cats file contents or piped input, with optional formatting.
+
+    Flags:
+    -n : number all lines
+    -b : number non-empty lines (overrides -n)
+    -s : collapse multiple blank lines into one
+    -v : display non-printing characters (except tabs and newlines)
+
+    Input: dict with keys: "input" (str), "cmd" (str), "params" (list), "flags" (str)
+    Output: dict with keys: "output" (str), "error" (str)
+    '''
+    arguments = details.get("params", [])
+    options = details.get("flags", "")
+    piped_data = details.get("input")
+    output_file = details.get("outfile")
+    append_mode = details.get("append", False)
+
+    # Determine input sources
+    if piped_data is not None:
+        sources = ["<stdin>"]
+    else:
+        sources = arguments
+        if not sources:
+            return {"output": None, "error": "cat: No file provided"}
+
+    all_lines = []
+
+    # Collect content from all sources
+    for source in sources:
+        try:
+            if source == "<stdin>":
+                all_lines.extend(piped_data.splitlines(keepends=True))
+            else:
+                with open(source, "r", encoding="utf-8") as file:
+                    all_lines.extend(file.readlines())
+        except FileNotFoundError:
+            return {"output": None, "error": f"cat: {source}: File not found"}
+        except PermissionError:
+            return {"output": None, "error": f"cat: {source}: Access denied"}
+        except Exception as err:
+            return {"output": None, "error": f"cat: Error: {str(err)}"}
+
+    # Apply -s flag: reduce multiple blank lines
+    if "s" in options:
+        filtered_lines = []
+        last_was_blank = False
+        for line in all_lines:
+            is_blank = line.strip() == ""
+            if is_blank and last_was_blank:
+                continue
+            filtered_lines.append(line)
+            last_was_blank = is_blank
+        all_lines = filtered_lines
+
+    # Apply -v flag: show non-printing characters
+    if "v" in options:
+        import string
+        modified_lines = []
+        for line in all_lines:
+            new_line = ""
+            for char in line:
+                if char in string.printable or char in ("\t", "\n"):
+                    new_line += char
+                else:
+                    new_line += f"^{chr(ord(char) % 128 + 64)}"
+            modified_lines.append(new_line)
+        all_lines = modified_lines
+
+    # Apply -b or -n flag: add line numbers
+    if "b" in options:
+        numbered_lines = []
+        line_counter = 0
+        for line in all_lines:
+            if line.strip():
+                line_counter += 1
+                numbered_lines.append(f"{line_counter:6}  {line.rstrip()}\n")
+            else:
+                numbered_lines.append(line)
+        all_lines = numbered_lines
+    elif "n" in options:
+        all_lines = [f"{i+1:6}  {line.rstrip()}\n" for i, line in enumerate(all_lines)]
+
+    final_output = "".join(all_lines).rstrip()
+
+    # Handle output redirection
+    if output_file:
+        try:
+            mode = "a" if append_mode else "w"
+            with open(output_file, mode, encoding="utf-8") as file:
+                file.write(final_output + "\n")
+            return {"output": None, "error": None}
+        except PermissionError:
+            return {"output": None, "error": f"cat: {output_file}: Access denied"}
+        except Exception as err:
+            return {"output": None, "error": f"cat: Error: {str(err)}"}
+
+    return {"output": final_output, "error": None}
 
 
 '''
@@ -521,47 +602,97 @@ def chmod(parts):
 wc
 counts the total number of words/lines in a file or piped input
 '''
-def wc(parts):
+def wc(details):
     '''
-    counts the total number of words/lines in a file or piped input.
+    Counts lines, words, bytes, and/or characters in files or piped input.
 
-    flags:
+    Flags:
     -l : count lines
     -w : count words
+    -c : count bytes
+    -m : count characters (overrides -c if specified)
+
+    Input: dict with keys: "input" (str), "cmd" (str), "params" (list), "flags" (str)
+    Output: dict with keys: "output" (str), "error" (str)
     '''
-    params = parts.get("params") or []
-    flags = parts.get("flags") or ""
-    input_text = parts.get("input")
+    arguments = details.get("params", [])
+    options = details.get("flags", "")
+    piped_data = details.get("input")
 
-    # Use piped input if it exists
-    if input_text:
-        text = input_text
-    elif params:
-        filename = params[0]
-        try:
-            with open(filename, "r", encoding="utf-8") as f:
-                text = f.read()
-        except FileNotFoundError:
-            return {"output": None, "error": f"wc: {filename}: No such file"}
-        except PermissionError:
-            return {"output": None, "error": f"wc: {filename}: Permission denied"}
-    else:
-        return {"output": None, "error": "wc: missing input"}
+    # Decide what to count based on flags or default behavior
+    show_lines = "l" in options or not options
+    show_words = "w" in options or not options
+    show_bytes = "c" in options or not options
+    show_chars = "m" in options
+    if show_chars and "c" in options:
+        show_bytes = False  # -m takes precedence over -c
 
-    # Count lines and words
-    line_count = text.count("\n")
-    word_count = len(text.split())
+    # Determine input sources
+    sources = arguments if arguments else []
+    if piped_data is not None:
+        sources = ["<stdin>"]  # Handle piped input
 
-    # Handle flags
-    if "l" in flags and "w" in flags:
-        return {"output": f"{line_count} {word_count}", "error": None}
-    elif "l" in flags:
-        return {"output": str(line_count), "error": None}
-    elif "w" in flags:
-        return {"output": str(word_count), "error": None}
-    else:
-        # default: both counts
-        return {"output": f"{line_count} {word_count}", "error": None}
+    overall_lines = 0
+    overall_words = 0
+    overall_bytes = 0
+    overall_chars = 0
+    results = []
+
+    for source in sources:
+        if source == "<stdin>":
+            text_content = piped_data
+        else:
+            try:
+                with open(source, "r", encoding="utf-8") as file:
+                    text_content = file.read()
+            except FileNotFoundError:
+                return {"output": None, "error": f"word_count: {source}: File not found"}
+            except PermissionError:
+                return {"output": None, "error": f"word_count: {source}: Access denied"}
+            except Exception as err:
+                return {"output": None, "error": f"word_count: Error: {str(err)}"}
+
+        # Calculate counts
+        line_total = text_content.count("\n") + (1 if text_content and not text_content.endswith("\n") else 0)
+        word_total = len(text_content.split())
+        byte_total = len(text_content.encode("utf-8"))
+        char_total = len(text_content)
+
+        # Accumulate totals for multiple files
+        overall_lines += line_total
+        overall_words += word_total
+        overall_bytes += byte_total
+        overall_chars += char_total
+
+        # Build output for this source
+        counts = []
+        if show_lines:
+            counts.append(f"{line_total:8}")
+        if show_words:
+            counts.append(f"{word_total:8}")
+        if show_chars:
+            counts.append(f"{char_total:8}")
+        if show_bytes:
+            counts.append(f"{byte_total:8}")
+        if source != "<stdin>":
+            counts.append(source)
+        results.append(" ".join(counts))
+
+    # Add totals if multiple files
+    if len(sources) > 1:
+        total_counts = []
+        if show_lines:
+            total_counts.append(f"{overall_lines:8}")
+        if show_words:
+            total_counts.append(f"{overall_words:8}")
+        if show_chars:
+            total_counts.append(f"{overall_chars:8}")
+        if show_bytes:
+            total_counts.append(f"{overall_bytes:8}")
+        total_counts.append("total")
+        results.append(" ".join(total_counts))
+
+    return {"output": "\n".join(results).strip(), "error": None}
 
           
 
@@ -1119,6 +1250,7 @@ if __name__ == "__main__":
             cmd = cmd[:cursor_position] + char + cmd[cursor_position:]
             cursor_position += 1
             redraw_prompt(cmd, cursor_position)
+
 
 
 
