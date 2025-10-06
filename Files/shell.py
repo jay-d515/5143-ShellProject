@@ -360,11 +360,8 @@ def cp(parts):
 rm:
 allows the user to delete a file/directory by passing its name
 '''
-import os
-import shutil
-
 def rm(parts):
-    '''
+    """
     removes files or directories.
 
     flags:
@@ -373,42 +370,48 @@ def rm(parts):
 
     input: dict: {"input":string,"cmd":string,"params":list,"flags":string}
     output: dict: {"output":string,"error":string}
-    '''
+    """
     params = parts.get("params") or []
     flags = parts.get("flags") or ""
 
     if not params:
         return {"output": None, "error": "rm: missing operand"}
 
+    # used as an error message display
+    errors = []
+
     for path in params:
         try:
+            # if the path is a file, delete it
             if os.path.isfile(path):
                 os.remove(path)
-
-            # flag handling
+            # if the path is a directory
             elif os.path.isdir(path):
-                # if r is in the flags, but f isn't, then prompt
                 if "r" in flags:
                     if "f" not in flags:
-                        user = input(f"rm: remove directory '{path}' and its contents? (y/n) ")
-                        if user == "y":
+                        user = input(f"Are you sure you want to delete '{path}' and its contents? (y/n) ")
+                        # if ANYTHING but "y" is entered, do nothing
+                        if user.lower() != "y":
                             continue
+                    # deletion
                     shutil.rmtree(path)
                 else:
-                    # throw error
                     if "f" not in flags:
-                        print(f"rm: cannot remove '{path}': Is a directory")
-
+                        errors.append(f"rm: cannot remove '{path}': Is a directory")
+            # if the files doesn't exist
             else:
-                # throw error
                 if "f" not in flags:
-                    print(f"rm: cannot remove '{path}': No such file or directory")
+                    errors.append(f"rm: cannot remove '{path}': No such file or directory")
 
+        # display error exception msg
         except Exception as e:
             if "f" not in flags:
-                print(f"rm: error removing '{path}': {str(e)}")
-
-    return {"output": None, "error": None}
+                errors.append(f"rm: error removing '{path}': {str(e)}")
+    if errors:
+        error_output = "\n".join(errors)
+    else:
+        error_output = None
+    return {"output": None, "error": error_output}
  
 
 '''
