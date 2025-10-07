@@ -1060,7 +1060,7 @@ def whoami(parts):
 clear
 clears the terminal screen
 '''
-def cls(parts=None):
+def clear(parts=None):
     '''
     clears the terminal screen.
     '''
@@ -1147,7 +1147,7 @@ def execute_command(command_dict):
         'cp': cp,
         'grep': grep,
         'help': help,
-        'cls': cls,
+        'clear': clear,
         'chmod': chmod
         # etc.ex
     }
@@ -1296,6 +1296,7 @@ if __name__ == "__main__":
             cmd = cmd[:cursor_position] + char + cmd[cursor_position:]
             cursor_position += 1
             redraw_prompt(cmd, cursor_position)
+
 
 
 
